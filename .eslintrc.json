@@ -27,6 +27,14 @@
         "semi": [
             "error",
             "always"
-        ]
-    }
+        ],
+        "comma-dangle": [
+            "error",
+            "always-multiline"
+        ],
+        "comma-style": ["error", "last"],
+        "eol-last": ["error", "always"],
+        "function-call-argument-newline": ["error", "consistent"],
+        "func-call-spacing": ["error", "never"]
+	}
 }

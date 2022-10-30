@@ -1,14 +1,89 @@
+const buttonLeft = document.getElementById('left');
+const buttonCenter = document.getElementById('center');
+const buttonRight = document.getElementById('right');
+const buttonStates = {
+	left: false,
+	center: false,
+	right: false,
+};
+const makeButtonToggle = (name, state) => {
+	return (event) => {
+		buttonStates[name] = state;
+		const classList = event?.currentTarget?.classList;
+		if (classList) {
+			event.preventDefault();
+			classList[state ? 'add' : 'remove']('active');
+		}
+	};
+};
+const buttonTogglerMap = {
+	left: {
+		on: makeButtonToggle('left', true),
+		off: makeButtonToggle('left', false),
+	},
+	center: {
+		on: makeButtonToggle('center', true),
+		off: makeButtonToggle('center', false),
+	},
+	right: {
+		on: makeButtonToggle('right', true),
+		off: makeButtonToggle('right', false),
+	},
+};
+const keyButtonMap = {
+	a: 'left',
+	w: 'center',
+	d: 'right',
+	ArrowLeft: 'left',
+	ArrowUp: 'center',
+	ArrowRight: 'right',
+};
+const onButtonEvents = [
+	'mousedown',
+	'touchstart',
+];
+const offButtonEvents = [
+	'mouseup',
+	'mouseout',
+	'touchcancel',
+	'touchend',
+];
+onButtonEvents.forEach((eventName) => {
+	buttonLeft.addEventListener(eventName, buttonTogglerMap.left.on);
+	buttonCenter.addEventListener(eventName, buttonTogglerMap.center.on);
+	buttonRight.addEventListener(eventName, buttonTogglerMap.right.on);
+});
+offButtonEvents.forEach((eventName) => {
+	buttonLeft.addEventListener(eventName, buttonTogglerMap.left.off);
+	buttonCenter.addEventListener(eventName, buttonTogglerMap.center.off);
+	buttonRight.addEventListener(eventName, buttonTogglerMap.right.off);
+});
+window.addEventListener('keydown', (keydownEvent) => {
+	// console.log('keydownEvent', keydownEvent);
+	const buttonName = keyButtonMap[keydownEvent.key];
+	if(buttonName){
+		buttonStates[buttonName] = true;
+	}
+});
+window.addEventListener('keyup', (keydownEvent) => {
+	// console.log('keydownEvent', keydownEvent);
+	const buttonName = keyButtonMap[keydownEvent.key];
+	if(buttonName){
+		buttonStates[buttonName] = false;
+	}
+});
+
 const THREE = window.THREE;
 
 const loader = new THREE.GLTFLoader();
 
-const bounds = document.querySelector('.boundsB');
+const bounds = document.querySelector('#game-container');
 
 const camera = new THREE.PerspectiveCamera(
 	1,
 	window.innerWidth / window.innerHeight,
 	0.01,
-	1000
+	1000,
 );
 camera.position.z = 3;
 
@@ -39,7 +114,7 @@ carouselParent.rotation.order = 'ZYX';
 
 const renderer = new THREE.WebGLRenderer({
 	antialias: true,
-	alpha: true
+	alpha: true,
 });
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -68,15 +143,24 @@ const resize = () => {
 		renderer.setSize(
 			clientWidth,
 			clientHeight,
-			false
+			false,
 		);
 	}
 };
 
+const cannonRotateSpeed = 0.01;
 function animation (time) {
 	resize();
 
-	cannonParent.rotation.z = time / 1000;
+	if (buttonStates.left) {
+		cannonParent.rotation.z += cannonRotateSpeed;
+	}
+	if (buttonStates.right) {
+		cannonParent.rotation.z -= cannonRotateSpeed;
+	}
+	cannonParent.scale.y = buttonStates.center
+		? 1.25
+		: 1;
 	carouselParent.rotation.y = time / 1000;
 	directionalLight.rotation.y = time / 1000;
 

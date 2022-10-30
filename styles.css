@@ -15,7 +15,7 @@ canvas {
 	height: 100%;
 }
 
-.boundsA {
+#controls {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -23,8 +23,38 @@ canvas {
 	margin: auto;
 	width: 50vmin;
 	height: 100vmin;
-	background-color: #f0f8;
-	opacity: 0;
+	z-index: 1;
+}
+#controls button {
+	position: absolute;
+	bottom: 2.5%;
+	border: 0;
+	padding: 0;
+	width: 20%;
+	background-color: #f00;
+	border-radius: 50%;
+}
+#controls .visible-button:active,
+#controls .visible-button.active {
+	background-color: #00f;
+}
+#controls button:before {
+	position: relative;
+	display: block;
+	content: '';
+	padding-bottom: 100%;
+}
+#left {
+	left: 5%;
+}
+#center {
+	left: 0;
+	right: 0;
+	margin: auto;
+	border: 2px solid #00f;
+}
+#right {
+	right: 5%;
 }
 .fade {
 	position: absolute;
@@ -35,7 +65,7 @@ canvas {
 	background: linear-gradient(0, #000f, #0000);
 	z-index: 1;
 }
-.boundsB {
+#game-container {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -46,24 +76,22 @@ canvas {
 
 
 @media (max-aspect-ratio: 1/1) {
-	.boundsA {
+	#controls {
 		width: 50vmax;
 		height: 100vmax;
-		background-color: #0f08;
 	}
-	.boundsB {
+	#game-container {
 		height: 100vmax;
 	}
 }
 
 
 @media (max-aspect-ratio: 1/2) {
-	.boundsA {
+	#controls {
 		width: 100vmin;
 		height: 200vmin;
-		background-color: #00f8;
 	}
-	.boundsB {
+	#game-container {
 		height: 200vmin;
 		/*border-bottom: 4px solid #f0f;*/
 	}
