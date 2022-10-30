@@ -1,23 +1,48 @@
-import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/0.146.0/three.module.js';
+const THREE = window.THREE;
+
+const loader = new THREE.GLTFLoader();
 
 const bounds = document.querySelector('.boundsB');
 
-const camera = new THREE.PerspectiveCamera(1, window.innerWidth / window.innerHeight, 0.01, 10);
-camera.position.z = 1;
+const camera = new THREE.PerspectiveCamera(
+	1,
+	window.innerWidth / window.innerHeight,
+	0.01,
+	1000
+);
+camera.position.z = 3;
 
 const scene = new THREE.Scene();
-const material = new THREE.MeshNormalMaterial();
-const geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
-const frameGeometry = new THREE.BoxGeometry(1, 2, 0);
-const cubeMesh = new THREE.Mesh(geometry, material);
-const frameMesh = new THREE.Mesh(frameGeometry, material);
-scene.add(cubeMesh);
-scene.add(frameMesh);
+const ambientLight = new THREE.AmbientLight( 0xffffff, 1 );
+scene.add( ambientLight );
+const directionalLight = new THREE.DirectionalLight( 0xff0000, 5 );
+scene.add( directionalLight );
+scene.add( directionalLight.target );
+directionalLight.position.set(0, -1, 0);
+const frameParent = new THREE.Object3D();
+const cannonParent = new THREE.Object3D();
+const carouselParent = new THREE.Object3D();
+const material = new THREE.MeshBasicMaterial();
+material.wireframe = true;
+const wireframeGeometry = new THREE.PlaneGeometry(1, 2);
+const wireframeMesh = new THREE.Mesh(wireframeGeometry, material);
+scene.add(wireframeMesh);
+scene.add(frameParent);
+scene.add(cannonParent);
+scene.add(carouselParent);
+cannonParent.position.y = -0.85;
+carouselParent.position.x = 2.3848;
+carouselParent.position.z = -7.1374;
+carouselParent.position.y = -0.974063;
+carouselParent.rotation.z = Math.PI / -7;
+carouselParent.rotation.order = 'ZYX';
 
 const renderer = new THREE.WebGLRenderer({
 	antialias: true,
 	alpha: true
 });
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 const canvas = renderer.domElement;
 
 const deg = Math.PI / 180;
@@ -35,7 +60,7 @@ const resize = () => {
 		canvas.height !== height
 	) {
 		const aspect = width / height;
-		const desiredMinimumFov = Math.PI / 2; // 90 deg
+		const desiredMinimumFov = 36.87 * deg;
 		camera.fov = desiredMinimumFov / deg;
 		camera.aspect = aspect;
 		camera.updateProjectionMatrix();
@@ -51,11 +76,38 @@ const resize = () => {
 function animation (time) {
 	resize();
 
-	cubeMesh.rotation.x = time / 2000;
-	cubeMesh.rotation.y = time / 1000;
+	cannonParent.rotation.z = time / 1000;
+	carouselParent.rotation.y = time / 1000;
+	directionalLight.rotation.y = time / 1000;
 
 	renderer.render(scene, camera);
 }
 
 renderer.setAnimationLoop(animation);
 bounds.appendChild(renderer.domElement);
+
+function loadGlb (path, parentObject) {
+	loader.load(
+		path,
+		function (gltf) {
+			parentObject.add(gltf.scene);
+			// gltf.animations; // Array<THREE.AnimationClip>
+			// gltf.scene; // THREE.Group
+			// gltf.scenes; // Array<THREE.Group>
+			// gltf.cameras; // Array<THREE.Camera>
+			// gltf.asset; // Object
+		},
+		/*
+		function (xhr) {
+			// console.log((xhr.loaded / xhr.total * 100) + '% loaded', xhr);
+		},
+		function (error) {
+			// console.log('An error happened', error);
+		}
+		*/
+	);
+}
+
+loadGlb('assets/cannon.glb', cannonParent);
+loadGlb('assets/frame.glb', frameParent);
+loadGlb('assets/carousel.glb', carouselParent);

@@ -24,6 +24,7 @@ canvas {
 	width: 50vmin;
 	height: 100vmin;
 	background-color: #f0f8;
+	opacity: 0;
 }
 .fade {
 	position: absolute;
