@@ -5,7 +5,7 @@ let gameState = {
 		  0, 5, 3, 1, 9,
 		0, 0, 5, 5, 2, 9,
 		  0, 0, 3, 8, 7
-	`.replace(/\s/g,'').split(',').map((item) => item * 1)
+	`.replace(/\s/g,'').split(',').map((item) => item * 1),
 };
 let gameStateFloaty = {
 	rowSize: 6,
@@ -14,7 +14,7 @@ let gameStateFloaty = {
 		  0, 0, 3, 0, 9,
 		0, 0, 5, 5, 0, 0,
 		  0, 0, 3, 8, 7
-	`.replace(/\s/g,'').split(',').map((item) => item * 1)
+	`.replace(/\s/g,'').split(',').map((item) => item * 1),
 };
 
 const cleanFromTiled = (array, toplineSize) => {
@@ -23,7 +23,7 @@ const cleanFromTiled = (array, toplineSize) => {
 
 let gameStateTiled = {
 	rowSize: 11,
-	tiles: cleanFromTiled([8, 8, 8, 8, 5, 8, 5, 8, 8, 8, 8, 8, 8, 8, 8, 5, 5, 8, 8, 8, 8, 0, 8, 8, 5, 5, 5, 5, 5, 5, 5, 8, 8, 8, 8, 8, 8, 5, 5, 8, 8, 8, 8, 0, 8, 8, 8, 8, 5, 8, 5, 8, 8, 8, 8, 8, 8, 8, 5, 8, 8, 5, 8, 8, 8, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 11)
+	tiles: cleanFromTiled([8, 8, 8, 8, 5, 8, 5, 8, 8, 8, 8, 8, 8, 8, 8, 5, 5, 8, 8, 8, 8, 0, 8, 8, 5, 5, 5, 5, 5, 5, 5, 8, 8, 8, 8, 8, 8, 5, 5, 8, 8, 8, 8, 0, 8, 8, 8, 8, 5, 8, 5, 8, 8, 8, 8, 8, 8, 8, 5, 8, 8, 5, 8, 8, 8, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 11),
 };
 
 const isFatRow = (index, rowSize) => {
@@ -79,7 +79,7 @@ const getNeighborIndices = (index, rowSize) => {
 		getIndex([row - 1, col + offset], rowSize), // northwest
 		getIndex([row - 1, col + 1 + offset], rowSize), // northeast
 		getIndex([row + 1, col + offset], rowSize), // southwest
-		getIndex([row + 1, col + 1 + offset], rowSize) // southeast
+		getIndex([row + 1, col + 1 + offset], rowSize), // southeast
 	];
 	return neighbors
 		.filter((item) => item !== false)
@@ -202,6 +202,22 @@ const printGameState = (state) => {
 	return result;
 };
 
+const getInPlayBubbles = (state) => {
+	let possibles = {};
+	state.tiles.forEach(function (item) {
+		if (item !== 0) {
+			possibles[item] = true;
+		}
+	});
+	return Object.keys(possibles).sort((a, b) => a - b);
+};
+
+const getRandomBubbleFromState = (state) => {
+	const possibles = getInPlayBubbles(state);
+	const random = Math.floor(Math.random() * possibles.length);
+	return possibles[random];
+};
+
 const placeBubble = (placingIndex, bubbleValue, state = gameStateTiled) => {
 	if (state.tiles[placingIndex] !== 0) {
 		console.log(`Cannot place a bubble at index ${placingIndex}! There is one there already!`);
@@ -239,8 +255,8 @@ const placeBubble = (placingIndex, bubbleValue, state = gameStateTiled) => {
 			openIndices.push(index);
 		}
 	});
-	console.log('\nOpen indices:');
-	console.log('   ' + openIndices.join(', '));
+	console.log('\nOpen indices: ' + openIndices.join(', '));
+	console.log('\nNext bubble: ' + getRandomBubbleFromState(state));
 	return state;
 };
 
@@ -266,7 +282,7 @@ const testLetterNeighbors = function (letter) {
 			   'g', 'h', 'i', 'j', 'k',
 			'l', 'm', 'n', 'o', 'p', 'q',
 			   'r', 's', 't', 'u', 'v'
-		`.replace(/[\s']/g,'').split(',')
+		`.replace(/[\s']/g,'').split(','),
 	};
 	const index = gameLetters.tiles.findIndex(function (item) {
 		return item === letter;
@@ -294,5 +310,63 @@ const placeIndex = 69;
 const placeValue = 2;
 console.log(`\n   Placing bubble '${placeValue}' at index ${placeIndex}\n`);
 console.log(placeBubble(placeIndex, placeValue));
+
+/* PROPER STUFF NOW */
+const defaultConfig = {
+	rowSize: 7,
+	rowCount: 4,
+	levelHeight: 12,
+	colorCount: 4,
+	totalColors: 9,
+	randomizeColors: true,
+};
+
+const makeRandomGameState = (userConfig) => {
+	const config = Object.assign({}, defaultConfig, userConfig);
+	// color stuffs
+	let colorHat = [];
+	for (let i = 1; i <= config.totalColors; i++) {
+		colorHat.push(i);
+	}
+	let colorMap = {};
+	for (let i = 1; i <= config.colorCount; i++) {
+		let value = i;
+		if (config.randomizeColors) {
+			const rando = Math.floor(Math.random() * colorHat.length);
+			value = colorHat[rando];
+			colorHat.splice(rando, 1);
+		}
+		colorMap[i] = value;
+	}
+	const getRandomTile = () => {
+		const rando = Math.ceil(Math.random() * config.colorCount);
+		return colorMap[rando];
+	};
+	// making fresh map
+	let tiles = [];
+	let row = 0;
+	let col = 0;
+	while (row < config.levelHeight) {
+		const index = getIndex([row,col], config.rowSize);
+		if (index === false) {
+			row += 1;
+			col = 0;
+		} else {
+			if (row < config.rowCount) {
+				tiles[index] = getRandomTile();
+			} else {
+				tiles[index] = 0;
+			}
+			col +=1;
+		}
+	}
+	const state = {
+		rowSize: config.rowSize,
+		tiles,
+	};
+	printGameState(state);
+	return state;
+};
+makeRandomGameState();
 
 console.log('breakpoint me lol');
