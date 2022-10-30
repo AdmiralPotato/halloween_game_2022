@@ -5,7 +5,16 @@ const gameState = {
 		  0, 5, 3, 1, 9,
 		0, 0, 5, 5, 2, 9,
 		  0, 0, 3, 8, 7
-	`.replace(/\s/g,'').split(',')
+	`.replace(/\s/g,'').split(',').map((item) => item * 1)
+};
+const gameStateFloaty = {
+	rowSize: 6,
+	tiles: `
+		5, 5, 0, 0, 3, 2,
+		  0, 0, 3, 0, 9,
+		0, 0, 5, 5, 0, 0,
+		  0, 0, 3, 8, 7
+	`.replace(/\s/g,'').split(',').map((item) => item * 1)
 };
 
 const isFatRow = (index, rowSize) => {
@@ -69,8 +78,6 @@ const getNeighborIndices = (index, rowSize) => {
 };
 
 const findContiguousMatches = (index, state) => {
-	// test @ index 13
-	// should return [ 0, 1, 2, 7, 13, 14 ]
 	const rowSize = state.rowSize;
 	const tiles = state.tiles;
 	const matchValue = tiles[index]; // 5
@@ -96,9 +103,68 @@ const findContiguousMatches = (index, state) => {
 		queue = [];
 	}
 	return result.sort((a, b) => a - b);
-	// => [0,1,2,7,13,14]
 };
+
+console.log('   CONTIGUOUS MATCHES:');
 console.log(findContiguousMatches(13, gameState));
+// [ 0, 1, 2, 7, 13, 14 ]
+
+const findAttached = (state) => {
+	const rowSize = state.rowSize;
+	const tiles = state.tiles;
+	let result = [];
+	let crawled = {};
+	for (let i = 0; i < rowSize; i++) {
+		if (tiles[i] > 0) {
+			result.push(i);
+			crawled[i] = true;
+		}
+	}
+	tiles.forEach(function (value, index) {
+		if (value === 0) {
+			crawled[index] = 'empty';
+		}
+	});
+	let queue = [];
+	let toCrawl = result.slice();
+	while (toCrawl.length) {
+		toCrawl.forEach(function (index) {
+			let neighbors = getNeighborIndices(index, rowSize)
+				.filter((item) => !crawled[item]);
+			neighbors.forEach(function (index) {
+				result.push(index);
+				queue.push(index);
+				crawled[index] = true;
+			});
+		});
+		toCrawl = queue;
+		queue = [];
+	}
+	return result.sort((a, b) => a - b);
+};
+
+console.log('   ATTACHED BUBBLES:');
+console.log(findAttached(gameStateFloaty));
+// [ 0, 1, 4, 5, 10 ]
+
+const findUnattached = (state) => {
+	const attached = findAttached(state);
+	const tiles = state.tiles;
+	let result = [];
+	tiles.forEach(function (value, index) {
+		if (
+			value > 0
+			&& !attached.includes(index)
+		) {
+			result.push(index);
+		}
+	});
+	return result;
+};
+
+console.log('   UNATTACHED:');
+console.log(findUnattached(gameStateFloaty));
+// [ 8, 13, 14, 19, 20, 21 ]
 
 const testLetterNeighbors = function (letter) {
 	const gameLetters = {
@@ -124,6 +190,8 @@ const testLetterNeighbors = function (letter) {
 		return false;
 	}
 };
+console.log('   LETTER TEST:');
 console.log(testLetterNeighbors('a'));
+// ['b', 'g']
 
 console.log('lolololo');
