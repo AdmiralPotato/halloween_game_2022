@@ -180,17 +180,38 @@ const isGameWon = (state) => {
 	return true;
 };
 
-const printGameState = (state) => {
+const printGameMeta = (state) => {
+	let openIndices = [];
+	state.tiles.forEach(function (value, index) {
+		if (value === 0) {
+			let insert = index;
+			if (isLastRow(index, state)) {
+				insert = '(' + index + ')';
+			}
+			openIndices.push(insert);
+		}
+	});
+	let dangerLevel = state.dangerState / state.dangerRamp || 0;
+	let dangerPercent = Math.floor(dangerLevel * 100);
+	let printie = `Score: ${state.score} -- Danger: ${dangerPercent}%`;
+	printie += '\nOpen indices: ' + openIndices.join(', ');
+	console.log(printie);
+	return printie;
+};
+
+const printGameBoard = (state) => {
 	const tiles = state.tiles;
 	let printSize = 0;
 	tiles.forEach(function (item) {
 		var printie = item + '';
 		printSize = Math.max(printSize, printie.length);
 	});
+	const ceilingWidth = (printSize + 1) * state.rowSize - 1;
+	const ceilingString = 'X'.repeat(ceilingWidth);
 	const printTiles = tiles.map(function (item, index) {
 		let printItem = item + '';
 		if (item === 0) {
-			printItem = isLastRow(index, state) ? 'X' : '.';
+			printItem = isLastRow(index, state) ? 'x' : '.';
 		}
 		const lengthDiff = printSize - printItem.length;
 		for (let i = 0; i < lengthDiff; i++) {
@@ -204,6 +225,9 @@ const printGameState = (state) => {
 		offsetString += ' ';
 	}
 	let result = '';
+	for (let i = 0; i < state.lowered; i++) {
+		result += ceilingString + '\n';
+	}
 	let currRow = 0;
 	printTiles.forEach(function (item, index) {
 		const rowCol = getRowCol(index, state.rowSize);
@@ -256,13 +280,6 @@ const placeBubble = (placingIndex, bubbleValue, state) => {
 			}
 		}
 	}
-	// let openIndices = [];
-	// state.tiles.forEach(function (value, index) {
-	// 	if (value === 0) {
-	// 		openIndices.push(index);
-	// 	}
-	// });
-	// console.log('\nOpen indices: ' + openIndices.join(', '));
 	return state;
 };
 
@@ -371,19 +388,20 @@ const makeGameState = (userConfig) => {
 		getRandomBubbleFromState(state),
 		getRandomBubbleFromState(state),
 	];
-	printGameState(state);
+	console.log('New game board:');
+	printGameBoard(state);
 	return {
 		state,
 		placeBubbleAtIndex (index) {
-			printGameState(state);
 			const bubble = state.queue[0];
 			const success = placeBubble(index, bubble, state);
 			if (success) { // if it's a legal move
 				// advance bubble queue
 				state.queue.shift();
 				state.queue.push(getRandomBubbleFromState(state));
-				console.log('\n');
-				printGameState(state);
+				return state;
+			} else {
+				return false;
 			}
 		},
 		getDanger () {
@@ -394,19 +412,22 @@ const makeGameState = (userConfig) => {
 				state.score += getScore(state.popped[0].length);
 				const popped = state.popped.shift();
 				popped.forEach(function (index) {
-					state.tiles[index] = '!';
+					state.tiles[index] = 0;
 				});
-				printGameState(state);
-				state.tiles = state.tiles.map((value) => value === '!' ? 0 : value);
-				console.log('\n');
-				printGameState(state);
 				return popped;
 			} else {
 				return false;
 			}
 		},
+		printGameBoard () { // (A) tiles + (B) queue
+			printGameBoard(state);
+		},
+		printGameMeta () { // (C) danger + (D) score
+			printGameMeta(state);
+		},
 		printGameState () {
-			printGameState(state);
+			printGameBoard(state); // (A) tiles + (B) queue
+			printGameMeta(state); // (C) danger + (D) score
 		},
 		advanceDangerLevel () {
 			advanceDangerLevel(state);
@@ -420,6 +441,44 @@ const makeGameState = (userConfig) => {
 				return 0;
 			}
 		},
+		play (index) { // NOTE: all-in-one test play (in console)
+			// 1. placing bubble
+			const success = this.placeBubbleAtIndex(index);
+			if (success) {
+				console.log('BIP');
+				printGameBoard(state); // (A) tiles + (B) queue
+			}
+			// 2. popping bubbles
+			while (state.popped.length) {
+				const popped = state.popped[0];
+				const drawState = JSON.parse(JSON.stringify(state));
+				popped.forEach(function (index) {
+					drawState.tiles[index] = '!';
+				});
+				console.log('POP!');
+				printGameBoard(drawState); // (A) tiles + (B) queue
+				// "animation":
+				drawState.tiles = drawState.tiles
+					.map((value) => value === '!' ? 0 : value);
+				this.resolvePops(state);
+				printGameBoard(state); // (A) tiles + (B) queue
+			}
+			//3. dropping ceiling
+			this.advanceDangerLevel();
+			if (state.lowered !== 0 && state.dangerState === 0) {
+				console.log('KCHONK!');
+				printGameBoard(state); // (A) tiles + (B) queue
+			}
+			// 4. win/lose/continue
+			let isOver = this.isGameOver();
+			if (isOver === 1) {
+				console.log('YOU WIN! Score: ' + state.score); // (D) score
+			} else if (isOver === -1) {
+				console.log('YOU LOSE! Score: ' + state.score); // (D) score
+			} else {
+				printGameMeta(state); // (C) danger + (D) score
+			}
+		},
 	};
 };
 
@@ -427,16 +486,16 @@ const makeGameState = (userConfig) => {
 
 THINGS TO DRAW
 
-- Tiles
+A. Tiles
 	- game.state.tiles
-- Bubble queue
+B. Bubble queue
 	- game.state.queue
 	- queue[0] is the next shot
-- Danger level
+C. Danger level
 	- game.getDanger()
 	- value between 0 and 1
 	- 1 means the next shot will advance the ceiling
-- Score
+D. Score
 	- game.state.score
 
 
@@ -451,7 +510,6 @@ TO PLAY THE GAME
 
 */
 
-let test = makeGameState();
-test.placeBubbleAtIndex(27, test.state.queue[0]);
+let test = makeGameState({dangerRamp: 3});
 
 console.log('breakpoint me lol');
