@@ -1,0 +1,45 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "",
+    "automapping.whileDrawing": false,
+    "expandedProjectPaths": [
+    ],
+    "file.lastUsedOpenFilter": "All Files (*)",
+    "fileStates": {
+        "test-map.json": {
+            "scale": 0.23368707482993195,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 1116.8782021425245,
+                "y": 1840.0675360968796
+            }
+        }
+    },
+    "map.fixedSize": true,
+    "map.height": 16,
+    "map.lastUsedFormat": "json",
+    "map.layerDataFormat": 5,
+    "map.orientation": null,
+    "map.tileHeight": 300,
+    "map.tileWidth": 300,
+    "map.width": 8,
+    "openFiles": [
+    ],
+    "project": "halloween-bobbles.tiled-project",
+    "recentFiles": [
+        "test-map.json"
+    ],
+    "tileset.lastUsedFormat": "json",
+    "tileset.margin": 0,
+    "tileset.spacing": 0,
+    "tileset.tileSize": {
+        "height": 300,
+        "width": 300
+    },
+    "tileset.transparentColor": "#ff00ff",
+    "tileset.type": 0,
+    "tileset.useTransparentColor": false
+}

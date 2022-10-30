@@ -1,0 +1,14 @@
+{ "columns":3,
+ "image":"halloween-01.png",
+ "imageheight":901,
+ "imagewidth":900,
+ "margin":0,
+ "name":"candy-bobbles",
+ "spacing":0,
+ "tilecount":9,
+ "tiledversion":"1.4.3",
+ "tileheight":300,
+ "tilewidth":300,
+ "type":"tileset",
+ "version":1.4
+}
