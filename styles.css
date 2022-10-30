@@ -1,0 +1,69 @@
+html, body {
+	height: 100%;
+}
+body {
+	color: #fff;
+	margin: 0;
+	padding: 0;
+	background-color: #000;
+	position: relative;
+}
+
+canvas {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+}
+
+.boundsA {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	margin: auto;
+	width: 50vmin;
+	height: 100vmin;
+	background-color: #f0f8;
+}
+.fade {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 20%;
+	background: linear-gradient(0, #000f, #0000);
+	z-index: 1;
+}
+.boundsB {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 100vmin;
+	background: linear-gradient(0, #0008, #f0f8);
+}
+
+
+@media (max-aspect-ratio: 1/1) {
+	.boundsA {
+		width: 50vmax;
+		height: 100vmax;
+		background-color: #0f08;
+	}
+	.boundsB {
+		height: 100vmax;
+	}
+}
+
+
+@media (max-aspect-ratio: 1/2) {
+	.boundsA {
+		width: 100vmin;
+		height: 200vmin;
+		background-color: #00f8;
+	}
+	.boundsB {
+		height: 200vmin;
+		/*border-bottom: 4px solid #f0f;*/
+	}
+}
