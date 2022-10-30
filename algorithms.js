@@ -1,4 +1,4 @@
-const gameState = {
+let gameState = {
 	rowSize: 6,
 	tiles: `
 		5, 5, 5, 3, 3, 2,
@@ -7,7 +7,7 @@ const gameState = {
 		  0, 0, 3, 8, 7
 	`.replace(/\s/g,'').split(',').map((item) => item * 1)
 };
-const gameStateFloaty = {
+let gameStateFloaty = {
 	rowSize: 6,
 	tiles: `
 		5, 5, 0, 0, 3, 2,
@@ -15,6 +15,15 @@ const gameStateFloaty = {
 		0, 0, 5, 5, 0, 0,
 		  0, 0, 3, 8, 7
 	`.replace(/\s/g,'').split(',').map((item) => item * 1)
+};
+
+const cleanFromTiled = (array, toplineSize) => {
+	return array.filter((value, index) => (index + 1) % (toplineSize * 2));
+};
+
+let gameStateTiled = {
+	rowSize: 11,
+	tiles: cleanFromTiled([8, 8, 8, 8, 5, 8, 5, 8, 8, 8, 8, 8, 8, 8, 8, 5, 5, 8, 8, 8, 8, 0, 8, 8, 5, 5, 5, 5, 5, 5, 5, 8, 8, 8, 8, 8, 8, 5, 5, 8, 8, 8, 8, 0, 8, 8, 8, 8, 5, 8, 5, 8, 8, 8, 8, 8, 8, 8, 5, 8, 8, 5, 8, 8, 8, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 11)
 };
 
 const isFatRow = (index, rowSize) => {
@@ -105,10 +114,6 @@ const findContiguousMatches = (index, state) => {
 	return result.sort((a, b) => a - b);
 };
 
-console.log('   CONTIGUOUS MATCHES:');
-console.log(findContiguousMatches(13, gameState));
-// [ 0, 1, 2, 7, 13, 14 ]
-
 const findAttached = (state) => {
 	const rowSize = state.rowSize;
 	const tiles = state.tiles;
@@ -132,9 +137,11 @@ const findAttached = (state) => {
 			let neighbors = getNeighborIndices(index, rowSize)
 				.filter((item) => !crawled[item]);
 			neighbors.forEach(function (index) {
-				result.push(index);
-				queue.push(index);
-				crawled[index] = true;
+				if (tiles[index]) {
+					result.push(index);
+					queue.push(index);
+					crawled[index] = true;
+				}
 			});
 		});
 		toCrawl = queue;
@@ -142,10 +149,6 @@ const findAttached = (state) => {
 	}
 	return result.sort((a, b) => a - b);
 };
-
-console.log('   ATTACHED BUBBLES:');
-console.log(findAttached(gameStateFloaty));
-// [ 0, 1, 4, 5, 10 ]
 
 const findUnattached = (state) => {
 	const attached = findAttached(state);
@@ -162,7 +165,96 @@ const findUnattached = (state) => {
 	return result;
 };
 
-console.log('   UNATTACHED:');
+const printGameState = (state) => {
+	const tiles = state.tiles;
+	let printSize = 0;
+	tiles.forEach(function (item) {
+		var printie = item + '';
+		printSize = Math.max(printSize, printie.length);
+	});
+	const printTiles = tiles.map(function (item) {
+		let printItem = item === 0 ? '.' : item + '';
+		const lengthDiff = printSize - printItem.length;
+		for (let i = 0; i < lengthDiff; i++) {
+			printItem += ' ';
+		}
+		return printItem;
+	});
+	const offset = Math.floor((printSize + 1) / 2);
+	let offsetString = '';
+	for (let i = 0; i < offset; i++) {
+		offsetString += ' ';
+	}
+	let result = '';
+	let currRow = 0;
+	printTiles.forEach(function (item, index) {
+		const rowCol = getRowCol(index, state.rowSize);
+		if (currRow !== rowCol[0]) {
+			result += '\n';
+			if (!isFatRow(index, state.rowSize)) {
+				result += offsetString;
+			}
+			currRow = rowCol[0];
+		}
+		result += item + ' ';
+	});
+	console.log(result);
+	return result;
+};
+
+const placeBubble = (placingIndex, bubbleValue, state = gameStateTiled) => {
+	if (state.tiles[placingIndex] !== 0) {
+		console.log(`Cannot place a bubble at index ${placingIndex}! There is one there already!`);
+	} else {
+		printGameState(state);
+		state.tiles[placingIndex] = bubbleValue;
+		console.log('\n');
+		printGameState(state);
+		const matches = findContiguousMatches(placingIndex, state);
+		if (matches.length >= 3) {
+			console.log('\nBUBBLE MATCH!\n');
+			matches.forEach(function (index) {
+				state.tiles[index] = '!';
+			});
+			printGameState(state);
+			state.tiles = state.tiles.map((value) => value === '!' ? 0 : value);
+			console.log('\n');
+			printGameState(state);
+			const unattached = findUnattached(state);
+			if (unattached.length) {
+				unattached.forEach(function (index) {
+					state.tiles[index] = '!';
+				});
+				console.log('\n');
+				printGameState(state);
+				state.tiles = state.tiles.map((value) => value === '!' ? 0 : value);
+				console.log('\n');
+				printGameState(state);
+			}
+		}
+	}
+	let openIndices = [];
+	state.tiles.forEach(function (value, index) {
+		if (value === 0) {
+			openIndices.push(index);
+		}
+	});
+	console.log('\nOpen indices:');
+	console.log('   ' + openIndices.join(', '));
+	return state;
+};
+
+/* SOME KIND OF UNIT TESTS LOL */
+
+console.log('   CONTIGUOUS MATCHES:');
+console.log(findContiguousMatches(13, gameState));
+// [ 0, 1, 2, 7, 13, 14 ]
+
+console.log('   ATTACHED BUBBLES:');
+console.log(findAttached(gameStateFloaty));
+// [ 0, 1, 4, 5, 10 ]
+
+console.log('   UNATTACHED BUBBLES:');
 console.log(findUnattached(gameStateFloaty));
 // [ 8, 13, 14, 19, 20, 21 ]
 
@@ -194,4 +286,13 @@ console.log('   LETTER TEST:');
 console.log(testLetterNeighbors('a'));
 // ['b', 'g']
 
-console.log('lolololo');
+console.log('\n   PRINT TEST:');
+console.log(printGameState(gameState));
+
+console.log('\n   PLACING TEST:\n');
+const placeIndex = 69;
+const placeValue = 2;
+console.log(`\n   Placing bubble '${placeValue}' at index ${placeIndex}\n`);
+console.log(placeBubble(placeIndex, placeValue));
+
+console.log('breakpoint me lol');
