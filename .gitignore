@@ -2,3 +2,5 @@
 *.iml
 node_modules
 nope
+*.kra~
+*.blend1
