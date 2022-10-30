@@ -85,7 +85,7 @@ const camera = new THREE.PerspectiveCamera(
 	0.01,
 	1000,
 );
-camera.position.z = 3;
+camera.position.z = 5;
 
 const scene = new THREE.Scene();
 const ambientLight = new THREE.AmbientLight( 0xffffff, 1 );
@@ -105,7 +105,7 @@ scene.add(wireframeMesh);
 scene.add(frameParent);
 scene.add(cannonParent);
 scene.add(carouselParent);
-cannonParent.position.y = -0.85;
+cannonParent.position.y = -0.55;
 carouselParent.position.x = 2.3848;
 carouselParent.position.z = -7.1374;
 carouselParent.position.y = -0.974063;
@@ -135,7 +135,7 @@ const resize = () => {
 		canvas.height !== height
 	) {
 		const aspect = width / height;
-		const desiredMinimumFov = 36.87 * deg;
+		const desiredMinimumFov = 22.62 * deg;
 		camera.fov = desiredMinimumFov / deg;
 		camera.aspect = aspect;
 		camera.updateProjectionMatrix();
@@ -161,7 +161,7 @@ function animation (time) {
 	cannonParent.scale.y = buttonStates.center
 		? 1.25
 		: 1;
-	carouselParent.rotation.y = time / 1000;
+	carouselParent.rotation.y = time / 50000;
 	directionalLight.rotation.y = time / 1000;
 
 	renderer.render(scene, camera);
