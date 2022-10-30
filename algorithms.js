@@ -198,6 +198,7 @@ const printGameState = (state) => {
 		}
 		result += item + ' ';
 	});
+	result += `\n    ^ ${state.queue[0]} < ${state.queue[1]}`;
 	console.log(result);
 	return result;
 };
@@ -211,57 +212,45 @@ const getInPlayBubbles = (state) => {
 	});
 	return Object.keys(possibles).sort((a, b) => a - b);
 };
-
 const getRandomBubbleFromState = (state) => {
 	const possibles = getInPlayBubbles(state);
 	const random = Math.floor(Math.random() * possibles.length);
-	return possibles[random];
+	return possibles[random] * 1;
 };
 
 const placeBubble = (placingIndex, bubbleValue, state = gameStateTiled) => {
 	if (state.tiles[placingIndex] !== 0) {
-		console.log(`Cannot place a bubble at index ${placingIndex}! There is one there already!`);
+		console.warn(`Cannot place a bubble at index ${placingIndex}! There is a bubble there already!`);
+		return false;
 	} else {
-		printGameState(state);
 		state.tiles[placingIndex] = bubbleValue;
-		console.log('\n');
-		printGameState(state);
 		const matches = findContiguousMatches(placingIndex, state);
 		if (matches.length >= 3) {
-			console.log('\nBUBBLE MATCH!\n');
+			state.popped = state.popped ? state.popped : [];
+			state.popped.push(matches);
+			const tempState = JSON.parse(JSON.stringify(state));
 			matches.forEach(function (index) {
-				state.tiles[index] = '!';
+				tempState.tiles[index] = 0;
 			});
-			printGameState(state);
-			state.tiles = state.tiles.map((value) => value === '!' ? 0 : value);
-			console.log('\n');
-			printGameState(state);
-			const unattached = findUnattached(state);
+			const unattached = findUnattached(tempState);
 			if (unattached.length) {
-				unattached.forEach(function (index) {
-					state.tiles[index] = '!';
-				});
-				console.log('\n');
-				printGameState(state);
-				state.tiles = state.tiles.map((value) => value === '!' ? 0 : value);
-				console.log('\n');
-				printGameState(state);
+				state.popped.push(unattached);
 			}
 		}
 	}
-	let openIndices = [];
-	state.tiles.forEach(function (value, index) {
-		if (value === 0) {
-			openIndices.push(index);
-		}
-	});
-	console.log('\nOpen indices: ' + openIndices.join(', '));
-	console.log('\nNext bubble: ' + getRandomBubbleFromState(state));
+	// let openIndices = [];
+	// state.tiles.forEach(function (value, index) {
+	// 	if (value === 0) {
+	// 		openIndices.push(index);
+	// 	}
+	// });
+	// console.log('\nOpen indices: ' + openIndices.join(', '));
 	return state;
 };
 
 /* SOME KIND OF UNIT TESTS LOL */
 
+/*
 console.log('   CONTIGUOUS MATCHES:');
 console.log(findContiguousMatches(13, gameState));
 // [ 0, 1, 2, 7, 13, 14 ]
@@ -273,7 +262,9 @@ console.log(findAttached(gameStateFloaty));
 console.log('   UNATTACHED BUBBLES:');
 console.log(findUnattached(gameStateFloaty));
 // [ 8, 13, 14, 19, 20, 21 ]
+*/
 
+/*
 const testLetterNeighbors = function (letter) {
 	const gameLetters = {
 		rowSize: 6,
@@ -301,27 +292,22 @@ const testLetterNeighbors = function (letter) {
 console.log('   LETTER TEST:');
 console.log(testLetterNeighbors('a'));
 // ['b', 'g']
-
-console.log('\n   PRINT TEST:');
-console.log(printGameState(gameState));
-
-console.log('\n   PLACING TEST:\n');
-const placeIndex = 69;
-const placeValue = 2;
-console.log(`\n   Placing bubble '${placeValue}' at index ${placeIndex}\n`);
-console.log(placeBubble(placeIndex, placeValue));
+*/
 
 /* PROPER STUFF NOW */
+
 const defaultConfig = {
-	rowSize: 7,
-	rowCount: 4,
-	levelHeight: 12,
+	rowSize: 4,
+	rowCount: 3,
+	levelHeight: 7,
 	colorCount: 4,
 	totalColors: 9,
 	randomizeColors: true,
+	dangerRamp: 5,
+	tiles: [],
 };
 
-const makeRandomGameState = (userConfig) => {
+const makeGameState = (userConfig) => {
 	const config = Object.assign({}, defaultConfig, userConfig);
 	// color stuffs
 	let colorHat = [];
@@ -343,7 +329,7 @@ const makeRandomGameState = (userConfig) => {
 		return colorMap[rando];
 	};
 	// making fresh map
-	let tiles = [];
+	let tiles = config.tiles;
 	let row = 0;
 	let col = 0;
 	while (row < config.levelHeight) {
@@ -352,21 +338,73 @@ const makeRandomGameState = (userConfig) => {
 			row += 1;
 			col = 0;
 		} else {
-			if (row < config.rowCount) {
-				tiles[index] = getRandomTile();
-			} else {
-				tiles[index] = 0;
+			if (!tiles[index]) {
+				if (row < config.rowCount) {
+					tiles[index] = getRandomTile();
+				} else {
+					tiles[index] = 0;
+				}
 			}
 			col +=1;
 		}
 	}
 	const state = {
 		rowSize: config.rowSize,
+		dangerRamp: config.dangerRamp,
+		dangerState: 0,
+		lowered: 0,
 		tiles,
+		popped: [],
 	};
+	state.queue = [
+		getRandomBubbleFromState(state),
+		getRandomBubbleFromState(state),
+	];
 	printGameState(state);
-	return state;
+	return {
+		state,
+		placeBubbleAtIndex (index) {
+			printGameState(state);
+			const bubble = state.queue[0];
+			const success = placeBubble(index, bubble, state);
+			if (success) {
+				// advance bubble queue
+				state.queue.shift();
+				state.queue.push(getRandomBubbleFromState(state));
+				console.log('\n');
+				printGameState(state);
+			}
+		},
+		advanceDanger () {
+			state.dangerState += 1;
+			if (state.dangerState > state.dangerRamp) {
+				state.lowered += 1;
+				state.dangerState = 0;
+			}
+		},
+		getDanger () {
+			return state.dangerState / state.dangerRamp;
+		},
+		resolvePops () {
+			if (state.popped.length) {
+				const popped = state.popped.shift();
+				popped.forEach(function (index) {
+					state.tiles[index] = '!';
+				});
+				printGameState(state);
+				state.tiles = state.tiles.map((value) => value === '!' ? 0 : value);
+				console.log('\n');
+				printGameState(state);
+				return popped;
+			} else {
+				return false;
+			}
+		},
+		printGameState,
+	};
 };
-makeRandomGameState();
+
+let test = makeGameState();
+test.placeBubbleAtIndex(27, test.state.queue[0]);
 
 console.log('breakpoint me lol');
