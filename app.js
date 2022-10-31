@@ -178,7 +178,7 @@ function animation (time) {
 	const b = carouselConfig.b;
 	a.phase += a.speed;
 	b.phase += b.speed;
-	carouselAParent.rotation.y = Math.cos(a.phase) * a.amp;
+	carouselAParent.rotation.y = Math.sin(a.phase) * a.amp;
 	carouselBParent.rotation.y = Math.cos(b.phase) * b.amp;
 	directionalLight.rotation.y = time / 1000;
 	if (game?.state.score !== undefined) {
