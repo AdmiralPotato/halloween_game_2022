@@ -112,17 +112,17 @@ scene.add(cannonParent);
 scene.add(carouselAParent);
 scene.add(carouselBParent);
 cannonParent.position.y = -0.55;
-const {
-    'a': {
-        'phase': 44.34301400091524,
-        'amp': 0.13962634015954636,
-        'speed': 0.00033
-    },
-    'b': {
-        'phase': 65.93245670964309,
-        'amp': 0.10471975511965978,
-        'speed': 0.00054
-    }
+const carouselConfig = {
+	a: {
+		phase: 0,
+		amp: 0.13962634015954636,
+		speed: 0.00033,
+	},
+	b: {
+		phase: 0,
+		amp: 0.10471975511965978,
+		speed: 0.00054,
+	}
 };
 
 const renderer = new THREE.WebGLRenderer({
