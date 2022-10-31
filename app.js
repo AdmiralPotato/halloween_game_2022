@@ -104,6 +104,7 @@ scene.background = new THREE.Color(color);
 
 const frameParent = new THREE.Object3D();
 const cannonParent = new THREE.Object3D();
+window.cannonParent = cannonParent;
 const carouselAParent = new THREE.Object3D();
 const carouselBParent = new THREE.Object3D();
 const material = new THREE.MeshBasicMaterial();

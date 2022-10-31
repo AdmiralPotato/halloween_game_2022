@@ -69,14 +69,20 @@ window.makeGameBoard = (game) => {
 	const columns = state.rowSize;
 	const rows = state.levelHeight;
 	const ratio = rows / columns;
-	const gameBoardScale = 0.6;
+	const gameBoardScale = 0.65;
 	const bubbleParentScale = 1 / (columns * heX);
 
 	const material = new THREE.MeshBasicMaterial();
 	material.color.set(0x0000ff);
 	material.wireframe = true;
 	const wireframeGeometry = new THREE.PlaneGeometry(1, ratio);
-	const gameBoard = new THREE.Mesh(wireframeGeometry, material);
+	const gameBoard = new THREE.Object3D();
+	const gameBoardBounds = new THREE.Mesh(wireframeGeometry, material);
+	gameBoard.add(gameBoardBounds);
+	// puts the origin at the bottom of the bounding box.
+	gameBoardBounds.position.y = (ratio / 2);
+	// puts bottom at cannon rotation pivot
+	gameBoard.position.y = window.cannonParent.position.y;
 	// const bubbleParent = new THREE.Object3D();
 	const bubbleParent = new THREE.AxesHelper();
 	gameBoard.scale.set(gameBoardScale, gameBoardScale, gameBoardScale);
@@ -91,6 +97,7 @@ window.makeGameBoard = (game) => {
 		0,
 	);
 	gameBoard.add(bubbleParent);
+	gameBoardBounds.add(bubbleParent);
 	const getCoordinatesForIndex = (index) => {
 		const [
 			row,
