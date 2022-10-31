@@ -83,6 +83,10 @@ window.makeGameBoard = (game) => {
 	gameBoardBounds.position.y = (ratio / 2);
 	// puts bottom at cannon rotation pivot
 	gameBoard.position.y = window.cannonParent.position.y;
+	window.smoosherParent.position.y = (
+		window.cannonParent.position.y +
+		(ratio * gameBoardScale)
+	);
 	// const bubbleParent = new THREE.Object3D();
 	const bubbleParent = new THREE.AxesHelper();
 	gameBoard.scale.set(gameBoardScale, gameBoardScale, gameBoardScale);

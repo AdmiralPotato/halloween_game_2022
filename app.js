@@ -103,6 +103,11 @@ scene.fog = new THREE.Fog(color, near, far);
 scene.background = new THREE.Color(color);
 
 const frameParent = new THREE.Object3D();
+const smoosherClipPlanes = [
+	new THREE.Plane( new THREE.Vector3( 0, - 1, 0 ), 0.8 ),
+];
+const smoosherParent = new THREE.Object3D();
+window.smoosherParent = smoosherParent;
 const cannonParent = new THREE.Object3D();
 window.cannonParent = cannonParent;
 const carouselAParent = new THREE.Object3D();
@@ -111,6 +116,8 @@ const material = new THREE.MeshBasicMaterial();
 material.wireframe = true;
 const wireframeGeometry = new THREE.PlaneGeometry(1, 2);
 const wireframeMesh = new THREE.Mesh(wireframeGeometry, material);
+smoosherParent.position.z = 0;
+scene.add(smoosherParent);
 scene.add(wireframeMesh);
 scene.add(frameParent);
 scene.add(cannonParent);
@@ -143,6 +150,7 @@ const renderer = new THREE.WebGLRenderer({
 });
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.localClippingEnabled = true;
 const canvas = renderer.domElement;
 
 const resize = () => {
@@ -256,7 +264,10 @@ loadGlb('assets/cannon.glb', cannonParent);
 loadGlb('assets/frame.glb', frameParent);
 loadGlb('assets/carousel_a.glb', carouselAParent);
 loadGlb('assets/carousel_b.glb', carouselBParent);
-loadGlb('assets/carousel_b.glb', carouselBParent);
+loadGlb('assets/smoosher.glb', smoosherParent, () => {
+	smoosherParent.getObjectByProperty('isMesh', true)
+		.material.clippingPlanes = smoosherClipPlanes;
+});
 loadGlb('assets/mage.glb', scene, (gltf) => {
 	window.mageGLTF = gltf;
 	mixer = new THREE.AnimationMixer(gltf.scene);
