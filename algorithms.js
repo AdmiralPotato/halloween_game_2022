@@ -392,8 +392,8 @@ const makeGameState = (userConfig) => {
 		getRandomBubbleFromState(state),
 		getRandomBubbleFromState(state),
 	];
-	console.log('New game board:');
-	printGameBoard(state);
+	// console.log('New game board:');
+	// printGameBoard(state);
 	return {
 		state,
 		placeBubbleAtIndex (index) {
@@ -516,7 +516,7 @@ TO PLAY THE GAME
 
 let test = makeGameState({dangerRamp: 3});
 
-console.log('breakpoint me lol');
+// console.log('breakpoint me lol');
 
 if (typeof window === 'object') {
 	window.makeGameState = makeGameState;
