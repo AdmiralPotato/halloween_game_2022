@@ -31,12 +31,18 @@ canvas {
 	border: 0;
 	padding: 0;
 	width: 20%;
-	background-color: #f00;
+	background-color: transparent;
 	border-radius: 50%;
+	background-image: url("./assets/buttons.svg");
+	background-size: 300%;
+}
+#controls .visible-button:hover,
+#controls .visible-button.hover {
+	background-position-y: 50%;
 }
 #controls .visible-button:active,
 #controls .visible-button.active {
-	background-color: #00f;
+	background-position-y: 100%;
 }
 #controls button:before {
 	position: relative;
@@ -52,9 +58,11 @@ canvas {
 	right: 0;
 	margin: auto;
 	border: 2px solid #00f;
+	background-position-x: 50%;
 }
 #right {
 	right: 5%;
+	background-position-x: 100%;
 }
 .fade {
 	position: absolute;
