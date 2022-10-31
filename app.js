@@ -98,10 +98,17 @@ camera.position.z = 5;
 const scene = new THREE.Scene();
 const ambientLight = new THREE.AmbientLight( 0xffffff, 1 );
 scene.add( ambientLight );
-const directionalLight = new THREE.DirectionalLight( 0xff0000, 5 );
+const directionalLight = new THREE.DirectionalLight( 0x440000, 5 );
 scene.add( directionalLight );
 scene.add( directionalLight.target );
-directionalLight.position.set(0, -1, 0);
+directionalLight.position.set(0, 1, 0.25);
+
+const near = 4;
+const far = 12;
+const color = 0x440044;
+scene.fog = new THREE.Fog(color, near, far);
+scene.background = new THREE.Color(color);
+
 const frameParent = new THREE.Object3D();
 const cannonParent = new THREE.Object3D();
 const carouselAParent = new THREE.Object3D();
@@ -180,7 +187,6 @@ function animation (time) {
 	b.phase += b.speed;
 	carouselAParent.rotation.y = Math.sin(a.phase) * a.amp;
 	carouselBParent.rotation.y = Math.cos(b.phase) * b.amp;
-	directionalLight.rotation.y = time / 1000;
 	if (game?.state.score !== undefined) {
 		displayScore.innerText = game.state.score;
 	}
