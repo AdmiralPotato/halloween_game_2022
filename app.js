@@ -21,6 +21,7 @@ const keyButtonMap = {
 	ArrowLeft: 'left',
 	ArrowUp: 'center',
 	ArrowRight: 'right',
+	' ': 'center',
 };
 const onButtonEvents = [
 	'mousedown',
@@ -172,8 +173,8 @@ const speeds = {
 	crank: 2,
 	gear: -0.1,
 };
-const timeDrag = 0.85;
-const timeBuildup = 0.1;
+const timeDrag = 0.80;
+const timeBuildup = 0.22;
 let timeMomentum = 0;
 const clock = new THREE.Clock();
 let mixer;
