@@ -3,18 +3,21 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "",
+    "activeFile": "test-map.json",
     "automapping.whileDrawing": false,
     "expandedProjectPaths": [
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
+        "candy-bobbles.json": {
+            "scaleInDock": 0.125
+        },
         "test-map.json": {
-            "scale": 0.23368707482993195,
+            "scale": 0.5,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 1116.8782021425245,
-                "y": 1840.0675360968796
+                "x": 1164,
+                "y": 11220
             }
         }
     },
@@ -27,6 +30,7 @@
     "map.tileWidth": 300,
     "map.width": 8,
     "openFiles": [
+        "test-map.json"
     ],
     "project": "halloween-bobbles.tiled-project",
     "recentFiles": [

@@ -1,6 +1,14 @@
 { "columns":3,
+ "editorsettings":
+    {
+     "export":
+        {
+         "format":"",
+         "target":"."
+        }
+    },
  "image":"halloween-01.png",
- "imageheight":901,
+ "imageheight":900,
  "imagewidth":900,
  "margin":0,
  "name":"candy-bobbles",
