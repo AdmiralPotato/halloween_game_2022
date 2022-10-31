@@ -1,6 +1,7 @@
 var THREE = window.THREE;
+const textureLoader = new THREE.TextureLoader();
 
-const bubbleTexture = new THREE.TextureLoader().load( 'assets/bubble.png' );
+const bubbleTexture = textureLoader.load( 'assets/bubble.png' );
 const bubbleMaterial = new THREE.MeshBasicMaterial({
 	map: bubbleTexture,
 });
@@ -15,22 +16,29 @@ const candies = 9;
 const candiesPerRow = 3;
 const candyMaterials = [];
 const candyScale = 1 / candiesPerRow;
-const candyTexture = new THREE.TextureLoader().load(
+const candyTexture = textureLoader.load(
 	'assets/candy.png',
+	() => {
+		// create and swap out the UV offset textures now that
+		// the original one has finished loading.
+		for (let i = 0; i < candies; i++) {
+			const clonedTexture = candyTexture.clone();
+			clonedTexture.offset.set(
+				candyScale * (i % candiesPerRow),
+				(2/3) - (candyScale * Math.floor(i / candiesPerRow)),
+				// ^ not sure why 2/3rds make it index like expected but whatevs
+			);
+			candyMaterials[i].map = clonedTexture;
+		}
+	},
 );
 candyTexture.repeat.set(
 	candyScale,
 	candyScale,
 );
 for (let i = 0; i < candies; i++) {
-	const clonedTexture = candyTexture.clone();
-	clonedTexture.offset.set(
-		candyScale * (i % candiesPerRow),
-		(2/3) - (candyScale * Math.floor(i / candiesPerRow)),
-		// ^ not sure why 2/3rds make it index like expected but whatevs
-	);
 	const candyMaterial = new THREE.MeshBasicMaterial({
-		map: clonedTexture,
+		map: candyTexture,
 	});
 	candyMaterial.transparent = true;
 	candyMaterials.push(candyMaterial);
