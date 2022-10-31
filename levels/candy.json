@@ -7,16 +7,16 @@
          "target":"."
         }
     },
- "image":"halloween-01.png",
- "imageheight":900,
- "imagewidth":900,
+ "image":"..\/assets\/candy.png",
+ "imageheight":768,
+ "imagewidth":768,
  "margin":0,
- "name":"candy-bobbles",
+ "name":"candy",
  "spacing":0,
  "tilecount":9,
  "tiledversion":"1.4.3",
- "tileheight":300,
- "tilewidth":300,
+ "tileheight":256,
+ "tilewidth":256,
  "type":"tileset",
  "version":1.4
 }

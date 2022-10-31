@@ -7,7 +7,7 @@
         }
     },
  "height":80,
- "hexsidelength":150,
+ "hexsidelength":128,
  "infinite":false,
  "layers":[
         {
@@ -29,13 +29,13 @@
  "staggeraxis":"y",
  "staggerindex":"odd",
  "tiledversion":"1.4.3",
- "tileheight":300,
+ "tileheight":256,
  "tilesets":[
         {
          "firstgid":1,
-         "source":"candy-bobbles.json"
+         "source":"candy.json"
         }],
- "tilewidth":266,
+ "tilewidth":226,
  "type":"map",
  "version":1.4,
  "width":11
