@@ -1,38 +1,18 @@
 const displayScore = document.getElementById('score');
 const buttonStart = document.getElementById('start');
-const buttonLeft = document.getElementById('left');
-const buttonCenter = document.getElementById('center');
-const buttonRight = document.getElementById('right');
-const buttonStates = {
-	left: false,
-	center: false,
-	right: false,
-};
+const buttonMap = {};
 let game;
 let gameBoard;
 const makeButtonToggle = (name, state) => {
 	return (event) => {
-		buttonStates[name] = state;
-		const classList = event?.currentTarget?.classList;
+		event.preventDefault();
+		const button = buttonMap[name];
+		button.state = state;
+		const classList = button.element.classList;
 		if (classList) {
-			event.preventDefault();
 			classList[state ? 'add' : 'remove']('active');
 		}
 	};
-};
-const buttonTogglerMap = {
-	left: {
-		on: makeButtonToggle('left', true),
-		off: makeButtonToggle('left', false),
-	},
-	center: {
-		on: makeButtonToggle('center', true),
-		off: makeButtonToggle('center', false),
-	},
-	right: {
-		on: makeButtonToggle('right', true),
-		off: makeButtonToggle('right', false),
-	},
 };
 const keyButtonMap = {
 	a: 'left',
@@ -52,28 +32,40 @@ const offButtonEvents = [
 	'touchcancel',
 	'touchend',
 ];
-onButtonEvents.forEach((eventName) => {
-	buttonLeft.addEventListener(eventName, buttonTogglerMap.left.on);
-	buttonCenter.addEventListener(eventName, buttonTogglerMap.center.on);
-	buttonRight.addEventListener(eventName, buttonTogglerMap.right.on);
-});
-offButtonEvents.forEach((eventName) => {
-	buttonLeft.addEventListener(eventName, buttonTogglerMap.left.off);
-	buttonCenter.addEventListener(eventName, buttonTogglerMap.center.off);
-	buttonRight.addEventListener(eventName, buttonTogglerMap.right.off);
+
+[
+	'left',
+	'center',
+	'right',
+].forEach((id) => {
+	const button = {
+		down: false,
+		element: document.getElementById(id),
+		handlers: {
+			on: makeButtonToggle(id, true),
+			off: makeButtonToggle(id, false),
+		},
+	};
+	onButtonEvents.forEach((eventName) => {
+		button.element.addEventListener(eventName, button.handlers.on);
+	});
+	offButtonEvents.forEach((eventName) => {
+		button.element.addEventListener(eventName, button.handlers.off);
+	});
+	buttonMap[id] = button;
 });
 window.addEventListener('keydown', (keydownEvent) => {
 	// console.log('keydownEvent', keydownEvent);
 	const buttonName = keyButtonMap[keydownEvent.key];
 	if(buttonName){
-		buttonStates[buttonName] = true;
+		buttonMap[buttonName].handlers.on(keydownEvent);
 	}
 });
 window.addEventListener('keyup', (keydownEvent) => {
 	// console.log('keydownEvent', keydownEvent);
 	const buttonName = keyButtonMap[keydownEvent.key];
 	if(buttonName){
-		buttonStates[buttonName] = false;
+		buttonMap[buttonName].handlers.off(keydownEvent);
 	}
 });
 
@@ -169,18 +161,28 @@ const resize = () => {
 };
 
 const cannonRotateSpeed = 0.01;
+const mageCrankSpeed = 2;
+const gearRotateSpeed = 2;
 const clock = new THREE.Clock();
 let mixer;
 function animation () {
 	resize();
-
-	if (buttonStates.left) {
-		cannonParent.rotation.z += cannonRotateSpeed;
+	if (mixer) {
+		let timeDirection = 0;
+		if (buttonMap.left.state) {
+			timeDirection = 1;
+		}
+		if (buttonMap.right.state) {
+			timeDirection = -1;
+		}
+		const gear = frameParent.getObjectByName('LinkageGear001');
+		mixer.timeScale = timeDirection * mageCrankSpeed;
+		cannonParent.rotation.z += timeDirection * cannonRotateSpeed;
+		if (gear) {
+			gear.rotation.z += timeDirection * gearRotateSpeed;
+		}
 	}
-	if (buttonStates.right) {
-		cannonParent.rotation.z -= cannonRotateSpeed;
-	}
-	cannonParent.scale.y = buttonStates.center
+	cannonParent.scale.y = buttonMap.center.state
 		? 1.25
 		: 1;
 	const a = carouselConfig.a;
@@ -189,8 +191,11 @@ function animation () {
 	b.phase += b.speed;
 	carouselAParent.rotation.y = Math.sin(a.phase) * a.amp;
 	carouselBParent.rotation.y = Math.cos(b.phase) * b.amp;
-	if (game?.state.score !== undefined) {
-		displayScore.innerText = game.state.score;
+	if (
+		game?.state.score !== undefined &&
+		displayScore.innerText !== game.state.score + ''
+	) {
+		displayScore.innerText = game.state.score + '';
 	}
 	if (mixer) {
 		mixer.update(clock.getDelta());
