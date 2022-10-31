@@ -160,9 +160,11 @@ const resize = () => {
 	}
 };
 
-const cannonRotateSpeed = 0.01;
-const mageCrankSpeed = 2;
-const gearRotateSpeed = 2;
+const speeds = {
+	cannon: 0.01,
+	crank: 2,
+	gear: 2,
+};
 const clock = new THREE.Clock();
 let mixer;
 function animation () {
@@ -176,10 +178,10 @@ function animation () {
 			timeDirection = -1;
 		}
 		const gear = frameParent.getObjectByName('LinkageGear001');
-		mixer.timeScale = timeDirection * mageCrankSpeed;
-		cannonParent.rotation.z += timeDirection * cannonRotateSpeed;
+		mixer.timeScale = timeDirection * speeds.crank;
+		cannonParent.rotation.z += timeDirection * speeds.cannon;
 		if (gear) {
-			gear.rotation.z += timeDirection * gearRotateSpeed;
+			gear.rotation.z += timeDirection * speeds.gear;
 		}
 	}
 	cannonParent.scale.y = buttonMap.center.state
