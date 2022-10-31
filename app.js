@@ -169,7 +169,9 @@ const resize = () => {
 };
 
 const cannonRotateSpeed = 0.01;
-function animation (time) {
+const clock = new THREE.Clock();
+let mixer;
+function animation () {
 	resize();
 
 	if (buttonStates.left) {
@@ -190,6 +192,9 @@ function animation (time) {
 	if (game?.state.score !== undefined) {
 		displayScore.innerText = game.state.score;
 	}
+	if (mixer) {
+		mixer.update(clock.getDelta());
+	}
 
 	renderer.render(scene, camera);
 }
@@ -197,11 +202,19 @@ function animation (time) {
 renderer.setAnimationLoop(animation);
 bounds.appendChild(renderer.domElement);
 
-function loadGlb (path, parentObject) {
+function loadGlb (path, parentObject, callback) {
 	loader.load(
 		path,
 		function (gltf) {
 			parentObject.add(gltf.scene);
+			gltf.scene.traverse((object) => {
+				// objects that were totally not of camera were getting culled.
+				// reference: https://discourse.threejs.org/t/mesh-disapear-when-camera-close/2914/4
+				object.frustumCulled = false;
+			});
+			if (callback) {
+				callback(gltf);
+			}
 			// gltf.animations; // Array<THREE.AnimationClip>
 			// gltf.scene; // THREE.Group
 			// gltf.scenes; // Array<THREE.Group>
@@ -223,6 +236,14 @@ loadGlb('assets/cannon.glb', cannonParent);
 loadGlb('assets/frame.glb', frameParent);
 loadGlb('assets/carousel_a.glb', carouselAParent);
 loadGlb('assets/carousel_b.glb', carouselBParent);
+loadGlb('assets/carousel_b.glb', carouselBParent);
+loadGlb('assets/mage.glb', scene, (gltf) => {
+	window.mageGLTF = gltf;
+	mixer = new THREE.AnimationMixer(gltf.scene);
+	gltf.animations.forEach((clip) => {
+		mixer.clipAction(clip).play();
+	});
+});
 
 const startGame = () => {
 	if (gameBoard) {
