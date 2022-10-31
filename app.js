@@ -115,6 +115,13 @@ scene.add(cannonParent);
 scene.add(carouselAParent);
 scene.add(carouselBParent);
 cannonParent.position.y = -0.55;
+const cannonArrow = new THREE.ArrowHelper(
+	new THREE.Vector3( 0, 1, 0 ).normalize(),
+	new THREE.Vector3( 0, 0, 0 ),
+	1,
+	0xffff00,
+);
+cannonParent.add(cannonArrow);
 const carouselConfig = {
 	a: {
 		phase: 0,
@@ -163,20 +170,24 @@ const resize = () => {
 const speeds = {
 	cannon: 0.01,
 	crank: 2,
-	gear: 2,
+	gear: -0.1,
 };
+const timeDrag = 0.85;
+const timeBuildup = 0.1;
+let timeMomentum = 0;
 const clock = new THREE.Clock();
 let mixer;
 function animation () {
 	resize();
 	if (mixer) {
-		let timeDirection = 0;
 		if (buttonMap.left.state) {
-			timeDirection = 1;
+			timeMomentum += timeBuildup;
 		}
 		if (buttonMap.right.state) {
-			timeDirection = -1;
+			timeMomentum -= timeBuildup;
 		}
+		timeMomentum *= timeDrag;
+		const timeDirection =+ timeMomentum;
 		const gear = frameParent.getObjectByName('LinkageGear001');
 		mixer.timeScale = timeDirection * speeds.crank;
 		cannonParent.rotation.z += timeDirection * speeds.cannon;
