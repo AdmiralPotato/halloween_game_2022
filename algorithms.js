@@ -369,7 +369,7 @@ const makeGameState = (userConfig) => {
 			col = 0;
 		} else {
 			if (!tiles[index]) {
-				if (row < config.rowCount) {
+				if (row < config.rowsToAutoFill) {
 					tiles[index] = getRandomTile();
 				} else {
 					tiles[index] = 0;

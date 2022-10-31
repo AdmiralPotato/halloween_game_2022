@@ -42,7 +42,7 @@
          "value":9
         },
         {
-         "name":"rowCount",
+         "name":"rowsToAutoFill",
          "type":"int",
          "value":0
         },
