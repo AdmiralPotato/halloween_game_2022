@@ -9,6 +9,7 @@ const isFatRow = (index, rowSize) => {
 	const mod = index % doubleDeckerSize;
 	return mod < rowSize;
 };
+window.isFatRow = isFatRow;
 
 const getRowCol = (index, rowSize) => {
 	const doubleDeckerSize = rowSize * 2 - 1;
@@ -22,6 +23,7 @@ const getRowCol = (index, rowSize) => {
 	}
 	return [row, col];
 };
+window.getRowCol = getRowCol;
 
 const getIndex = (rowCol, rowSize) => {
 	// rowCol is an array like [row, col]
@@ -332,6 +334,7 @@ const defaultConfig = {
 
 const makeGameState = (userConfig) => {
 	const config = Object.assign({}, defaultConfig, userConfig);
+	config.tiles = config.tiles.slice(); // break shared reference
 	// cleaning Tiled arrays
 	if (config.importFromTiled) {
 		config.tiles = cleanFromTiled(config.tiles, config.rowSize);
@@ -377,6 +380,7 @@ const makeGameState = (userConfig) => {
 	}
 	const state = {
 		rowSize: config.rowSize,
+		levelHeight: config.levelHeight,
 		dangerRamp: config.dangerRamp,
 		dangerState: 0,
 		lowered: 0,
@@ -513,3 +517,7 @@ TO PLAY THE GAME
 let test = makeGameState({dangerRamp: 3});
 
 console.log('breakpoint me lol');
+
+if (typeof window === 'object') {
+	window.makeGameState = makeGameState;
+}

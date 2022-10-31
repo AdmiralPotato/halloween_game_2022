@@ -1,5 +1,7 @@
 html, body {
 	height: 100%;
+	font-size: 4vmin;
+	font-family: monospace;
 }
 body {
 	color: #fff;
@@ -50,6 +52,23 @@ canvas {
 	content: '';
 	padding-bottom: 100%;
 }
+#score {
+	position: absolute;
+	left: 22%;
+	right: 18%;
+	top: 2%;
+	border: 2px solid #00f;
+	color: #f00;
+	line-height: 1.2rem;
+	font-size: 1.2rem;
+}
+#controls button#start {
+	width: 11%;
+	left: 5%;
+	top: 3.75%;
+	bottom: auto;
+	border: 2px solid #00f;
+}
 #left {
 	left: 5%;
 }
@@ -84,6 +103,9 @@ canvas {
 
 
 @media (max-aspect-ratio: 1/1) {
+	html, body {
+		font-size: 4vmax;
+	}
 	#controls {
 		width: 50vmax;
 		height: 100vmax;
@@ -95,6 +117,9 @@ canvas {
 
 
 @media (max-aspect-ratio: 1/2) {
+	html, body {
+		font-size: 8vmin;
+	}
 	#controls {
 		width: 100vmin;
 		height: 200vmin;

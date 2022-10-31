@@ -1,3 +1,5 @@
+const displayScore = document.getElementById('score');
+const buttonStart = document.getElementById('start');
 const buttonLeft = document.getElementById('left');
 const buttonCenter = document.getElementById('center');
 const buttonRight = document.getElementById('right');
@@ -6,6 +8,8 @@ const buttonStates = {
 	center: false,
 	right: false,
 };
+let game;
+let gameBoard;
 const makeButtonToggle = (name, state) => {
 	return (event) => {
 		buttonStates[name] = state;
@@ -73,7 +77,7 @@ window.addEventListener('keyup', (keydownEvent) => {
 	}
 });
 
-const THREE = window.THREE;
+var THREE = window.THREE;
 
 const deg = Math.PI / 180;
 let width = 0;
@@ -122,7 +126,7 @@ const carouselConfig = {
 		phase: 0,
 		amp: 0.10471975511965978,
 		speed: 0.00054,
-	}
+	},
 };
 
 const renderer = new THREE.WebGLRenderer({
@@ -177,6 +181,9 @@ function animation (time) {
 	carouselAParent.rotation.y = Math.cos(a.phase) * a.amp;
 	carouselBParent.rotation.y = Math.cos(b.phase) * b.amp;
 	directionalLight.rotation.y = time / 1000;
+	if (game?.state.score !== undefined) {
+		displayScore.innerText = game.state.score;
+	}
 
 	renderer.render(scene, camera);
 }
@@ -210,3 +217,18 @@ loadGlb('assets/cannon.glb', cannonParent);
 loadGlb('assets/frame.glb', frameParent);
 loadGlb('assets/carousel_a.glb', carouselAParent);
 loadGlb('assets/carousel_b.glb', carouselBParent);
+
+const startGame = () => {
+	if (gameBoard) {
+		scene.remove(gameBoard);
+	}
+	game = window.makeGameState({
+		rowSize: 3 + Math.floor(Math.random() * 9),
+	});
+	gameBoard = window.makeGameBoard(game);
+	console.log('Game started!');
+	scene.add(gameBoard);
+};
+buttonStart.addEventListener('click', startGame);
+
+startGame();
