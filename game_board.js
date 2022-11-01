@@ -87,6 +87,7 @@ window.makeGameBoard = (game) => {
 	const rows = state.levelHeight;
 	const gameBoardScale = 0.65; // blue box scale to white box
 	const bubbleDiameter = 1 / (columns * heX);
+	const bubbleRadius = bubbleDiameter / 2;
 	const height = (((rows - 1) * heY) + 1) * bubbleDiameter;
 
 	const material = new THREE.MeshBasicMaterial();
@@ -194,12 +195,15 @@ window.makeGameBoard = (game) => {
 			currentShotBubble.position.z = 0;
 			if (
 				Math.abs(currentShotBubble.position.x) >
-				(0.5 - (bubbleDiameter / 2))
+				(0.5 - (bubbleRadius))
 			) {
 				currentShotBubble.velocity.x *= -1;
 			}
 			// console.log('currentShotBubble.position', currentShotBubble.position);
-			if (currentShotBubble.position.length() > height * 1.5) {
+			if (
+				currentShotBubble.position.y > height - bubbleRadius
+				|| currentShotBubble.position.y < 0
+			) {
 				bubbleParent.remove(currentShotBubble);
 				currentShotBubble = undefined;
 			}
