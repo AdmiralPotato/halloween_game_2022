@@ -196,30 +196,44 @@ window.makeGameBoard = (game) => {
 
 	refreshBubbles();
 	game.on('resolve', refreshBubbles);
+	let isFiring = false;
 	let currentShotBubble;
+	const cannonWindowScale = 0.16;
+	const readyShot = () => {
+		isFiring = false;
+		currentShotBubble = window.makeBubble(
+			game.state.queue[0] - 1,
+			cannonWindowScale,
+		);
+		currentShotBubble.position.z = 0.208;
+		bubbleParent.add(currentShotBubble);
+	};
+	readyShot();
 	const originVec2 = new THREE.Vector2(0, 0);
 	const shootSpeed = bubbleDiameter * 8;
 	gameBoard.shoot = (shootAngle) => {
-		if (currentShotBubble) {
+		if (isFiring) {
 			console.log('HOLD YER HORSES');
 		} else {
+			isFiring = true;
 			console.log('FIRE!!!');
-			currentShotBubble = window.makeBubble(
-				game.state.queue[0] - 1,
+			currentShotBubble.scale.set(
+				bubbleDiameter,
+				bubbleDiameter,
 				bubbleDiameter,
 			);
+			currentShotBubble.position.z = 0;
 			currentShotBubble.velocity = new THREE.Vector2(0, 1)
 				.rotateAround(
 					originVec2,
 					shootAngle,
 				)
 				.multiplyScalar(shootSpeed);
-			bubbleParent.add(currentShotBubble);
 		}
 	};
 	gameBoard.tick = (deltaTime) => {
-		if (currentShotBubble) {
-			let killBullet = false;
+		if (isFiring) {
+			let playCompleted = false;
 			const movement = currentShotBubble.velocity
 				.clone()
 				.multiplyScalar(deltaTime);
@@ -235,11 +249,11 @@ window.makeGameBoard = (game) => {
 			const cellValue = game.state.tiles[closestCell.index];
 			const hitCeiling = currentShotBubble.position.y > height - bubbleRadius;
 			if (cellValue) {
-				killBullet = true;
+				playCompleted = true;
 				const nearestEmptyCell = cells.find((cell) => !game.state.tiles[cell.index]);
 				game.play(nearestEmptyCell.index);
 			} else if (hitCeiling) {
-				killBullet = true;
+				playCompleted = true;
 				game.play(closestCell.index);
 			}
 			if (
@@ -253,11 +267,12 @@ window.makeGameBoard = (game) => {
 				currentShotBubble.position.y < 0
 				|| Math.abs(currentShotBubble.position.x) > (0.6 - (bubbleRadius))
 			) {
-				killBullet = true;
-			}
-			if (killBullet) {
 				bubbleParent.remove(currentShotBubble);
-				currentShotBubble = undefined;
+				readyShot();
+			}
+			if (playCompleted) {
+				bubbleParent.remove(currentShotBubble);
+				readyShot();
 			}
 		}
 	};
