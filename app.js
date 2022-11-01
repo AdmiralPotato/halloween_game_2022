@@ -1,4 +1,5 @@
 const displayScore = document.getElementById('score');
+const displayDanger = document.getElementById('danger-inside');
 const buttonStart = document.getElementById('start');
 const buttonMap = {};
 const buttonStartHandlerMap = {
@@ -236,6 +237,13 @@ function animation (time) {
 		displayScore.innerText !== game.state.score + ''
 	) {
 		displayScore.innerText = game.state.score + '';
+	}
+	const danger = game.getDanger() * 100 + '%';
+	if (
+		game &&
+		displayDanger.style.width !== danger
+	) {
+		displayDanger.style.width = danger;
 	}
 	if (mixer) {
 		mixer.update(clock.getDelta());

@@ -54,13 +54,27 @@ canvas {
 }
 #score {
 	position: absolute;
+	text-align: right;
 	left: 22%;
 	right: 18%;
 	top: 2%;
-	border: 2px solid #00f;
+	border: 2px solid #002;
 	color: #f00;
 	line-height: 1.2rem;
 	font-size: 1.2rem;
+}
+#danger {
+	position: absolute;
+	left: 21%;
+	right: 17%;
+	top: 8%;
+	height: 1rem;
+	background-color: #200;
+}
+#danger-inside {
+	height: 80%;
+	border: 5px solid #200;
+	background-color: #f90;
 }
 #controls button#start {
 	width: 11%;

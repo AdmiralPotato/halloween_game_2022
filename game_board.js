@@ -162,7 +162,6 @@ window.makeGameBoard = (game) => {
 				: hexMaterial;
 		});
 	};
-	resetHexagons();
 	const getNearestCells = (position) => {
 		const cells = [];
 		hexagons.forEach((hex, index) => {
@@ -210,6 +209,7 @@ window.makeGameBoard = (game) => {
 		);
 		currentShotBubble.position.z = 0.208;
 		bubbleParent.add(currentShotBubble);
+		resetHexagons();
 	};
 	readyShot();
 	const originVec2 = new THREE.Vector2(0, 0);
