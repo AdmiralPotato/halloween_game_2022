@@ -3,8 +3,7 @@ const buttonStart = document.getElementById('start');
 const buttonMap = {};
 const buttonStartHandlerMap = {
 	center: () => {
-		console.log('FIRE!!!');
-		// gameBoard.shoot(cannonParent.rotation.z);
+		gameBoard.shoot(cannonParent.rotation.z);
 	},
 };
 let game;
@@ -199,7 +198,9 @@ const timeBuildup = 0.22;
 let timeMomentum = 0;
 const clock = new THREE.Clock();
 let mixer;
-function animation () {
+let lastTime = 0;
+function animation (time) {
+	const deltaTime = (time - lastTime) / 1000;
 	resize();
 	if (mixer) {
 		if (buttonMap.left.state) {
@@ -236,7 +237,9 @@ function animation () {
 		mixer.update(clock.getDelta());
 	}
 
+	gameBoard.tick(deltaTime);
 	renderer.render(scene, camera);
+	lastTime = time;
 }
 
 renderer.setAnimationLoop(animation);

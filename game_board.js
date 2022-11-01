@@ -54,7 +54,7 @@ for (let i = 0; i < candies; i++) {
 }
 
 const candyObjectScale = 0.9;
-window.makeBubble = (candyIndex) => {
+window.makeBubble = (candyIndex, diameter) => {
 	const bubble = new THREE.Mesh(
 		bubbleGeometry,
 		bubbleMaterial,
@@ -73,6 +73,9 @@ window.makeBubble = (candyIndex) => {
 	bubble.add(candy);
 	bubble.add(hex);
 	bubble.candyIndex = candyIndex;
+	if (diameter) {
+		bubble.scale.multiplyScalar(diameter);
+	}
 	return bubble;
 };
 
@@ -85,43 +88,41 @@ window.makeGameBoard = (game) => {
 	const gameBoardScale = 0.65; // blue box scale to white box
 	const bubbleDiameter = 1 / (columns * heX);
 	const height = (((rows - 1) * heY) + 1) * bubbleDiameter;
-	const ratio = height / 1; // because width is always 1!
-	const halfBubbleWidthInBoardSpace = bubbleDiameter * heX * 0.5;
 
 	const material = new THREE.MeshBasicMaterial();
 	material.color.set(0x0000ff);
 	material.wireframe = true;
-	const wireframeGeometry = new THREE.PlaneGeometry(1, ratio);
+	const wireframeGeometry = new THREE.PlaneGeometry(1, height);
 	const gameBoard = new THREE.Object3D();
 	const gameBoardBounds = new THREE.Mesh(wireframeGeometry, material);
 	gameBoard.add(gameBoardBounds);
 	// puts the origin at the bottom of the bounding box.
-	gameBoardBounds.position.y = (ratio / 2);
+	gameBoardBounds.position.y = (height / 2);
 	// puts bottom at cannon rotation pivot
 	gameBoard.position.y = window.cannonParent.position.y;
 	window.smoosherParent.position.y = (
 		window.cannonParent.position.y +
-		(ratio * gameBoardScale)
+		(height * gameBoardScale)
 	);
 	// const bubbleParent = new THREE.Object3D();
-	const bubbleParent = new THREE.AxesHelper();
+	const bubbleParent = new THREE.AxesHelper(0.5);
 	gameBoard.scale.set(gameBoardScale, gameBoardScale, gameBoardScale);
-	bubbleParent.scale.set(
-		bubbleDiameter,
-		bubbleDiameter,
-		bubbleDiameter,
-	);
-	bubbleParent.position.set(
-		(
-			-0.5 // puts us at left edge of game board
-			+ halfBubbleWidthInBoardSpace
-		),
-		(
-			(ratio / 2) // puts us at top edge of game board
-			- (0.5 * bubbleDiameter)
-		),
+	const firstBubbleOffset = new THREE.Vector3(
+		heX * 0.5,
+		-0.5,
+		0,
+	).multiplyScalar(bubbleDiameter);
+	const topLeftOffset = new THREE.Vector3(
+		-0.5, // puts us at left edge of game board
+		height, // puts us at top edge of game board
 		0,
 	);
+	const bottomCenterOffset = new THREE.Vector3(
+		0, // center
+		(height / -2), // puts us at bottom edge of game board
+		0,
+	);
+	bubbleParent.position.add(bottomCenterOffset);
 	gameBoard.add(bubbleParent);
 	gameBoardBounds.add(bubbleParent);
 	const getCoordinatesForIndex = (index) => {
@@ -136,7 +137,10 @@ window.makeGameBoard = (game) => {
 			(col + offset) * heX,
 			-row * heY,
 			0,
-		);
+		)
+			.multiplyScalar(bubbleDiameter)
+			.add(topLeftOffset)
+			.add(firstBubbleOffset);
 	};
 	const sparseBubbleMap = {};
 	const refreshBubbles = () => {
@@ -144,7 +148,10 @@ window.makeGameBoard = (game) => {
 			if (value && !sparseBubbleMap[index]) {
 				const candyIndex = value - 1;
 				const position  = getCoordinatesForIndex(index);
-				const bubble = window.makeBubble(candyIndex);
+				const bubble = window.makeBubble(
+					candyIndex,
+					bubbleDiameter,
+				);
 				sparseBubbleMap[index] = bubble;
 				bubble.position.add(position);
 				bubbleParent.add(bubble);
@@ -156,8 +163,42 @@ window.makeGameBoard = (game) => {
 	};
 	refreshBubbles();
 	game.on('resolve', refreshBubbles);
-	gameBoard.shoot = () => {
-
+	let currentShotBubble;
+	const originVec2 = new THREE.Vector2(0, 0);
+	const shootSpeed = bubbleDiameter * 8;
+	gameBoard.shoot = (shootAngle) => {
+		if (currentShotBubble) {
+			console.log('HOLD YER HORSES');
+		} else {
+			console.log('FIRE!!!');
+			currentShotBubble = window.makeBubble(
+				game.state.queue[0] - 1,
+				bubbleDiameter,
+			);
+			currentShotBubble.velocity = new THREE.Vector2(0, 1)
+				.rotateAround(
+					originVec2,
+					shootAngle,
+				)
+				.multiplyScalar(shootSpeed);
+			bubbleParent.add(currentShotBubble);
+		}
 	};
+	gameBoard.tick = (deltaTime) => {
+		if (currentShotBubble) {
+			const movement = currentShotBubble.velocity
+				.clone()
+				.multiplyScalar(deltaTime);
+			currentShotBubble.position.add(movement);
+			// because add vec2 to vec3 is nan
+			currentShotBubble.position.z = 0;
+			// console.log('currentShotBubble.position', currentShotBubble.position);
+			if (currentShotBubble.position.length() > height * 1.5) {
+				bubbleParent.remove(currentShotBubble);
+				currentShotBubble = undefined;
+			}
+		}
+	};
+	window.gameBoard = gameBoard;
 	return gameBoard;
 };
