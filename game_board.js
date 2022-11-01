@@ -156,6 +156,8 @@ window.makeGameBoard = (game) => {
 	};
 	refreshBubbles();
 	game.on('resolve', refreshBubbles);
-	gameBoard.refreshBubbles = refreshBubbles;
+	gameBoard.shoot = () => {
+
+	};
 	return gameBoard;
 };

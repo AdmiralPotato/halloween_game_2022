@@ -1,16 +1,29 @@
 const displayScore = document.getElementById('score');
 const buttonStart = document.getElementById('start');
 const buttonMap = {};
+const buttonStartHandlerMap = {
+	center: () => {
+		console.log('FIRE!!!');
+		// gameBoard.shoot(cannonParent.rotation.z);
+	},
+};
 let game;
 let gameBoard;
 const makeButtonToggle = (name, state) => {
 	return (event) => {
 		event.preventDefault();
 		const button = buttonMap[name];
+		const firstFire = state && !button.state;
 		button.state = state;
 		const classList = button.element.classList;
 		if (classList) {
 			classList[state ? 'add' : 'remove']('active');
+		}
+		if (
+			firstFire
+			&& buttonStartHandlerMap[name]
+		) {
+			buttonStartHandlerMap[name]();
 		}
 	};
 };
@@ -33,7 +46,6 @@ const offButtonEvents = [
 	'touchcancel',
 	'touchend',
 ];
-
 [
 	'left',
 	'center',
