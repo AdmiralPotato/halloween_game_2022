@@ -101,12 +101,24 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.z = 5;
 
 const scene = new THREE.Scene();
-const ambientLight = new THREE.AmbientLight( 0xffffff, 1 );
+
+const ambientLight = new THREE.AmbientLight( 0xffffff, 0.4 );
 scene.add( ambientLight );
-const directionalLight = new THREE.DirectionalLight( 0x440000, 5 );
-scene.add( directionalLight );
-scene.add( directionalLight.target );
-directionalLight.position.set(0, 1, 0.25);
+
+const rimLightBrightness = 0.2;
+const rimLightR = new THREE.DirectionalLight( 0xffaa66, rimLightBrightness);
+rimLightR.position.set(0.5, 0, -1);
+rimLightR.castShadow = true;
+scene.add(rimLightR);
+const rimLightL = new THREE.DirectionalLight( 0xaaff66, rimLightBrightness);
+rimLightL.position.set(-0.5, 0, -1);
+rimLightL.castShadow = true;
+scene.add(rimLightL);
+
+const fillLight = new THREE.DirectionalLight(0xffcccc, 1);
+scene.add( fillLight );
+scene.add( fillLight.target );
+fillLight.position.set(0, 1, 0.5);
 
 const near = 4;
 const far = 12;
