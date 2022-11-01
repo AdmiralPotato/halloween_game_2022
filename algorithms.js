@@ -477,37 +477,37 @@ const makeGameState = (userConfig) => {
 			if (success) {
 				console.log('BIP');
 				printGameBoard(state); // (A) tiles + (B) queue
-			}
-			// 2. popping bubbles
-			state.popped.forEach((stage, index) => {
-				const popped = state.popped[index];
-				const drawState = JSON.parse(JSON.stringify(state));
-				popped.forEach(function (index) {
-					drawState.tiles[index] = '!';
+				// 2. popping bubbles
+				state.popped.forEach((stage, index) => {
+					const popped = state.popped[index];
+					const drawState = JSON.parse(JSON.stringify(state));
+					popped.forEach(function (index) {
+						drawState.tiles[index] = '!';
+					});
+					console.log('POP!');
+					printGameBoard(drawState); // (A) tiles + (B) queue
+					// "animation":
+					drawState.tiles = drawState.tiles
+						.map((value) => value === '!' ? 0 : value);
+					this.resolvePops(index);
+					printGameBoard(state); // (A) tiles + (B) queue
 				});
-				console.log('POP!');
-				printGameBoard(drawState); // (A) tiles + (B) queue
-				// "animation":
-				drawState.tiles = drawState.tiles
-					.map((value) => value === '!' ? 0 : value);
-				this.resolvePops(index);
-				printGameBoard(state); // (A) tiles + (B) queue
-			});
-			this.clearPops();
-			//3. dropping ceiling
-			this.advanceDangerLevel();
-			if (state.lowered !== 0 && state.dangerState === 0) {
-				console.log('KCHONK!');
-				printGameBoard(state); // (A) tiles + (B) queue
-			}
-			// 4. win/lose/continue
-			let isOver = this.isGameOver();
-			if (isOver === 1) {
-				console.log('YOU WIN! Score: ' + state.score); // (D) score
-			} else if (isOver === -1) {
-				console.log('YOU LOSE! Score: ' + state.score); // (D) score
-			} else {
-				printGameMeta(state); // (C) danger + (D) score
+				this.clearPops();
+				//3. dropping ceiling
+				this.advanceDangerLevel();
+				if (state.lowered !== 0 && state.dangerState === 0) {
+					console.log('KCHONK!');
+					printGameBoard(state); // (A) tiles + (B) queue
+				}
+				// 4. win/lose/continue
+				let isOver = this.isGameOver();
+				if (isOver === 1) {
+					console.log('YOU WIN! Score: ' + state.score); // (D) score
+				} else if (isOver === -1) {
+					console.log('YOU LOSE! Score: ' + state.score); // (D) score
+				} else {
+					printGameMeta(state); // (C) danger + (D) score
+				}
 			}
 		},
 	};

@@ -236,7 +236,7 @@ window.makeGameBoard = (game) => {
 			const hitCeiling = currentShotBubble.position.y > height - bubbleRadius;
 			if (cellValue) {
 				killBullet = true;
-				const nearestEmptyCell = cells.find((cell) => !cell.value);
+				const nearestEmptyCell = cells.find((cell) => !game.state.tiles[cell.index]);
 				game.play(nearestEmptyCell.index);
 			} else if (hitCeiling) {
 				killBullet = true;
