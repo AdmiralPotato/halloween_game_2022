@@ -90,13 +90,16 @@ window.makeGameBoard = (game) => {
 	const bubbleRadius = bubbleDiameter / 2;
 	const height = (((rows - 1) * heY) + 1) * bubbleDiameter;
 
-	const material = new THREE.MeshBasicMaterial();
-	material.color.set(0x0000ff);
-	material.wireframe = true;
+	const boundsBaterial = new THREE.MeshBasicMaterial();
+	boundsBaterial.color.set(0x000000);
+	boundsBaterial.transparent = true;
+	boundsBaterial.opacity = 0.25;
 	const gameBoard = new THREE.Object3D();
-	const wireframeGeometry = new THREE.PlaneGeometry(1, height);
-	const bounds = new THREE.Mesh(wireframeGeometry, material);
+	const boundsGeometry = new THREE.PlaneGeometry(1, height);
+	const bounds = new THREE.Mesh(boundsGeometry, boundsBaterial);
 	bounds.position.y = (height / 2);
+	bounds.position.z = -0.5;
+	bounds.scale.multiplyScalar(1.075);
 	gameBoard.add(bounds);
 	gameBoard.bounds = bounds;
 	// puts bottom at cannon rotation pivot

@@ -205,7 +205,6 @@ function animation (time) {
 	resize();
 	if (gameBoard) {
 		boundsWireframe.visible = window.showBounds;
-		gameBoard.bounds.visible = window.showBounds;
 	}
 	if (mixer) {
 		if (buttonMap.left.state) {
