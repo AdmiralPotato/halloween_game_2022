@@ -323,16 +323,23 @@ const createRandomScenario = () => {
 	};
 };
 
+let levelIndex = 0;
+
 const startGame = (startConfig) => {
 	if (gameBoard) {
 		scene.remove(gameBoard);
 	}
-	const config = startConfig || createRandomScenario();
+	const config = (
+		startConfig
+		|| window.gameLevelConfigs[levelIndex]
+		|| createRandomScenario()
+	);
 	game = window.makeGameState(config);
 	gameBoard = window.makeGameBoard(game);
 	console.log('Game started!');
 	game.on('win', (state) => {
 		alert(`YOU WIN!!! SCORE: ${state.score}`);
+		levelIndex += 1;
 		startGame();
 	});
 	game.on('lose', (state) => {
