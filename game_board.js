@@ -61,7 +61,6 @@ window.makeBubble = (candyIndex) => {
 	return bubble;
 };
 
-const whatTheHellIsThisMagicNumber = 1.78;
 const heX = Math.sin(Math.PI / 3);
 const heY = 0.75;
 window.makeGameBoard = (game) => {
@@ -70,7 +69,8 @@ window.makeGameBoard = (game) => {
 	const rows = state.levelHeight;
 	const ratio = rows / columns;
 	const gameBoardScale = 0.65;
-	const bubbleParentScale = 1 / (columns * heX);
+	const bubbleDiameter = 1 / (columns * heX);
+	const halfBubbleWidthInBoardSpace = bubbleDiameter * heX * 0.5;
 
 	const material = new THREE.MeshBasicMaterial();
 	material.color.set(0x0000ff);
@@ -91,13 +91,19 @@ window.makeGameBoard = (game) => {
 	const bubbleParent = new THREE.AxesHelper();
 	gameBoard.scale.set(gameBoardScale, gameBoardScale, gameBoardScale);
 	bubbleParent.scale.set(
-		bubbleParentScale,
-		bubbleParentScale,
-		bubbleParentScale,
+		bubbleDiameter,
+		bubbleDiameter,
+		bubbleDiameter,
 	);
 	bubbleParent.position.set(
-		-0.5 + (bubbleParentScale * heX * 0.5),
-		bubbleParentScale * ((rows - whatTheHellIsThisMagicNumber) / 2),
+		(
+			-0.5 // puts us at left edge of game board
+			+ halfBubbleWidthInBoardSpace
+		),
+		(
+			(ratio / 2) // puts us at top edge of game board
+			- halfBubbleWidthInBoardSpace
+		),
 		0,
 	);
 	gameBoard.add(bubbleParent);
