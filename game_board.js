@@ -192,6 +192,12 @@ window.makeGameBoard = (game) => {
 			currentShotBubble.position.add(movement);
 			// because add vec2 to vec3 is nan
 			currentShotBubble.position.z = 0;
+			if (
+				Math.abs(currentShotBubble.position.x) >
+				(0.5 - (bubbleDiameter / 2))
+			) {
+				currentShotBubble.velocity.x *= -1;
+			}
 			// console.log('currentShotBubble.position', currentShotBubble.position);
 			if (currentShotBubble.position.length() > height * 1.5) {
 				bubbleParent.remove(currentShotBubble);
