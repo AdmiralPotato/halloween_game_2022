@@ -411,6 +411,9 @@ const makeGameState = (userConfig) => {
 		on (eventName, listener) {
 			eventMap[eventName].push(listener);
 		},
+		isLastRow (index) {
+			return isLastRow(index, state);
+		},
 		placeBubbleAtIndex (index) {
 			const bubble = state.queue[0];
 			const success = placeBubble(index, bubble, state);

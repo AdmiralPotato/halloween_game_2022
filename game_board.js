@@ -156,10 +156,13 @@ window.makeGameBoard = (game) => {
 	});
 
 	const resetHexagons = () => {
-		hexagons.forEach((hex) => {
-			hex.material = hexMaterial;
+		hexagons.forEach((hex, index) => {
+			hex.material = game.isLastRow(index)
+				? hexMaterialActive
+				: hexMaterial;
 		});
 	};
+	resetHexagons();
 	const getNearestCells = (position) => {
 		const cells = [];
 		hexagons.forEach((hex, index) => {
