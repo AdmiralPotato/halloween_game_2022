@@ -295,15 +295,20 @@ loadGlb('assets/mage.glb', scene, (gltf) => {
 	});
 });
 
-const startGame = () => {
+const createRandomScenario = () => {
+	const rows = 3 + Math.floor(Math.random() * 6);
+	return {
+		rowSize: rows,
+		levelHeight: Math.floor(rows * 2),
+	};
+};
+
+const startGame = (startConfig) => {
 	if (gameBoard) {
 		scene.remove(gameBoard);
 	}
-	const rows = 3 + Math.floor(Math.random() * 6);
-	game = window.makeGameState({
-		rowSize: rows,
-		levelHeight: Math.floor(rows * 2),
-	});
+	const config = startConfig || createRandomScenario();
+	game = window.makeGameState(config);
 	gameBoard = window.makeGameBoard(game);
 	console.log('Game started!');
 	game.on('win', (state) => {
@@ -316,6 +321,8 @@ const startGame = () => {
 	});
 	scene.add(gameBoard);
 };
-buttonStart.addEventListener('click', startGame);
+buttonStart.addEventListener('click', () => {
+	startGame();
+});
 
 startGame();

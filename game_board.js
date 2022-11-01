@@ -20,6 +20,11 @@ hexMaterial.color.set(0xffffff);
 hexMaterial.wireframe = true;
 hexMaterial.transparent = true;
 hexMaterial.opacity = 0.0625;
+const hexMaterialActive = hexMaterial.clone();
+hexMaterialActive.color.set(0xff0000);
+hexMaterialActive.wireframe = false;
+hexMaterialActive.opacity = 0.2;
+
 
 const candies = 9;
 const candiesPerRow = 3;
@@ -63,15 +68,9 @@ window.makeBubble = (candyIndex, diameter) => {
 		bubbleGeometry,
 		candyMaterials[candyIndex],
 	);
-	const hex = new THREE.Mesh(
-		hexGeometry,
-		hexMaterial,
-	);
-	hex.rotation.z = Math.PI / 2;
 	candy.scale.set(candyObjectScale, candyObjectScale, candyObjectScale);
-	candy.position.set(0, 0, -0.1);
+	candy.position.set(0, 0, -0.01);
 	bubble.add(candy);
-	bubble.add(hex);
 	bubble.candyIndex = candyIndex;
 	if (diameter) {
 		bubble.scale.multiplyScalar(diameter);
@@ -139,6 +138,42 @@ window.makeGameBoard = (game) => {
 			.add(topLeftOffset)
 			.add(firstBubbleOffset);
 	};
+
+	const hexagons = [];
+	const originalHex = new THREE.Mesh(
+		hexGeometry,
+		hexMaterial,
+	);
+	originalHex.rotation.z = Math.PI / 2;
+	originalHex.scale.multiplyScalar(bubbleDiameter);
+	// originalHex.position.add(new THREE.Vector3(0, 0, -0.012));
+	state.tiles.forEach((value, index) => {
+		const hex = originalHex.clone();
+		const position = getCoordinatesForIndex(index);
+		hex.position.add(position);
+		hexagons[index] = hex;
+		bubbleParent.add(hex);
+	});
+
+	const resetHexagons = () => {
+		hexagons.forEach((hex) => {
+			hex.material = hexMaterial;
+		});
+	};
+	const getNearestCells = (position) => {
+		const cells = [];
+		hexagons.forEach((hex, index) => {
+			const distance = hex.position.distanceTo(position);
+			cells.push({
+				index,
+				hex,
+				distance,
+			});
+		});
+		cells.sort((a, b) => a.distance - b.distance);
+		return cells;
+	};
+
 	const sparseBubbleMap = {};
 	const refreshBubbles = () => {
 		state.tiles.forEach((value, index) => {
@@ -158,6 +193,7 @@ window.makeGameBoard = (game) => {
 			}
 		});
 	};
+
 	refreshBubbles();
 	game.on('resolve', refreshBubbles);
 	let currentShotBubble;
@@ -183,12 +219,29 @@ window.makeGameBoard = (game) => {
 	};
 	gameBoard.tick = (deltaTime) => {
 		if (currentShotBubble) {
+			let killBullet = false;
 			const movement = currentShotBubble.velocity
 				.clone()
 				.multiplyScalar(deltaTime);
 			currentShotBubble.position.add(movement);
 			// because add vec2 to vec3 is nan
 			currentShotBubble.position.z = 0;
+			resetHexagons();
+			const cells = getNearestCells(
+				currentShotBubble.position,
+			);
+			const closestCell = cells.shift();
+			closestCell.hex.material = hexMaterialActive;
+			const cellValue = game.state.tiles[closestCell.index];
+			const hitCeiling = currentShotBubble.position.y > height - bubbleRadius;
+			if (cellValue) {
+				killBullet = true;
+				const nearestEmptyCell = cells.find((cell) => !cell.value);
+				game.play(nearestEmptyCell.index);
+			} else if (hitCeiling) {
+				killBullet = true;
+				game.play(closestCell.index);
+			}
 			if (
 				Math.abs(currentShotBubble.position.x) >
 				(0.5 - (bubbleRadius))
@@ -197,10 +250,12 @@ window.makeGameBoard = (game) => {
 			}
 			// console.log('currentShotBubble.position', currentShotBubble.position);
 			if (
-				currentShotBubble.position.y > height - bubbleRadius
-				|| currentShotBubble.position.y < 0
-				|| Math.abs(currentShotBubble.position.x) > (0.51 - (bubbleRadius))
+				currentShotBubble.position.y < 0
+				|| Math.abs(currentShotBubble.position.x) > (0.6 - (bubbleRadius))
 			) {
+				killBullet = true;
+			}
+			if (killBullet) {
 				bubbleParent.remove(currentShotBubble);
 				currentShotBubble = undefined;
 			}
