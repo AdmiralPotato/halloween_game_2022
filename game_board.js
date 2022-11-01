@@ -11,6 +11,15 @@ const bubbleGeometry = new THREE.PlaneGeometry(
 	bubbleGeomScale,
 	bubbleGeomScale,
 );
+const hexGeometry = new THREE.CircleGeometry(
+	0.5,
+	6,
+);
+const hexMaterial = new THREE.MeshBasicMaterial();
+hexMaterial.color.set(0xffffff);
+hexMaterial.wireframe = true;
+hexMaterial.transparent = true;
+hexMaterial.opacity = 0.0625;
 
 const candies = 9;
 const candiesPerRow = 3;
@@ -54,9 +63,15 @@ window.makeBubble = (candyIndex) => {
 		bubbleGeometry,
 		candyMaterials[candyIndex],
 	);
+	const hex = new THREE.Mesh(
+		hexGeometry,
+		hexMaterial,
+	);
+	hex.rotation.z = Math.PI / 2;
 	candy.scale.set(candyObjectScale, candyObjectScale, candyObjectScale);
 	candy.position.set(0, 0, -0.1);
 	bubble.add(candy);
+	bubble.add(hex);
 	bubble.candyIndex = candyIndex;
 	return bubble;
 };
@@ -67,9 +82,10 @@ window.makeGameBoard = (game) => {
 	const state = game.state;
 	const columns = state.rowSize;
 	const rows = state.levelHeight;
-	const ratio = rows / columns;
-	const gameBoardScale = 0.65;
+	const gameBoardScale = 0.65; // blue box scale to white box
 	const bubbleDiameter = 1 / (columns * heX);
+	const height = (((rows - 1) * heY) + 1) * bubbleDiameter;
+	const ratio = height / 1; // because width is always 1!
 	const halfBubbleWidthInBoardSpace = bubbleDiameter * heX * 0.5;
 
 	const material = new THREE.MeshBasicMaterial();
@@ -102,7 +118,7 @@ window.makeGameBoard = (game) => {
 		),
 		(
 			(ratio / 2) // puts us at top edge of game board
-			- halfBubbleWidthInBoardSpace
+			- (0.5 * bubbleDiameter)
 		),
 		0,
 	);
