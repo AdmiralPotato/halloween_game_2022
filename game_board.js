@@ -199,6 +199,7 @@ window.makeGameBoard = (game) => {
 			if (
 				currentShotBubble.position.y > height - bubbleRadius
 				|| currentShotBubble.position.y < 0
+				|| Math.abs(currentShotBubble.position.x) > (0.51 - (bubbleRadius))
 			) {
 				bubbleParent.remove(currentShotBubble);
 				currentShotBubble = undefined;
