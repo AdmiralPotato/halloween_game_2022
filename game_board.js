@@ -85,7 +85,7 @@ window.makeGameBoard = (game) => {
 	const state = game.state;
 	const columns = state.rowSize;
 	const rows = state.levelHeight;
-	const gameBoardScale = 0.65; // blue box scale to white box
+	const gameBoardScale = 0.68; // blue box scale to white box
 	const bubbleDiameter = 1 / (columns * heX);
 	const bubbleRadius = bubbleDiameter / 2;
 	const height = (((rows - 1) * heY) + 1) * bubbleDiameter;
@@ -93,12 +93,12 @@ window.makeGameBoard = (game) => {
 	const material = new THREE.MeshBasicMaterial();
 	material.color.set(0x0000ff);
 	material.wireframe = true;
-	const wireframeGeometry = new THREE.PlaneGeometry(1, height);
 	const gameBoard = new THREE.Object3D();
-	const gameBoardBounds = new THREE.Mesh(wireframeGeometry, material);
-	gameBoard.add(gameBoardBounds);
-	// puts the origin at the bottom of the bounding box.
-	gameBoardBounds.position.y = (height / 2);
+	const wireframeGeometry = new THREE.PlaneGeometry(1, height);
+	const bounds = new THREE.Mesh(wireframeGeometry, material);
+	bounds.position.y = (height / 2);
+	gameBoard.add(bounds);
+	gameBoard.bounds = bounds;
 	// puts bottom at cannon rotation pivot
 	gameBoard.position.y = window.cannonParent.position.y;
 	window.smoosherParent.position.y = (
@@ -118,14 +118,7 @@ window.makeGameBoard = (game) => {
 		height, // puts us at top edge of game board
 		0,
 	);
-	const bottomCenterOffset = new THREE.Vector3(
-		0, // center
-		(height / -2), // puts us at bottom edge of game board
-		0,
-	);
-	bubbleParent.position.add(bottomCenterOffset);
 	gameBoard.add(bubbleParent);
-	gameBoardBounds.add(bubbleParent);
 	const getCoordinatesForIndex = (index) => {
 		const [
 			row,

@@ -123,13 +123,14 @@ const cannonParent = new THREE.Object3D();
 window.cannonParent = cannonParent;
 const carouselAParent = new THREE.Object3D();
 const carouselBParent = new THREE.Object3D();
-const material = new THREE.MeshBasicMaterial();
-material.wireframe = true;
+window.showBounds = false;
+const boundsWireframeMaterial = new THREE.MeshBasicMaterial();
+boundsWireframeMaterial.wireframe = true;
 const wireframeGeometry = new THREE.PlaneGeometry(1, 2);
-const wireframeMesh = new THREE.Mesh(wireframeGeometry, material);
+const boundsWireframe = new THREE.Mesh(wireframeGeometry, boundsWireframeMaterial);
 smoosherParent.position.z = 0;
 scene.add(smoosherParent);
-scene.add(wireframeMesh);
+scene.add(boundsWireframe);
 scene.add(frameParent);
 scene.add(cannonParent);
 scene.add(carouselAParent);
@@ -202,6 +203,10 @@ let lastTime = 0;
 function animation (time) {
 	const deltaTime = (time - lastTime) / 1000;
 	resize();
+	if (gameBoard) {
+		boundsWireframe.visible = window.showBounds;
+		gameBoard.bounds.visible = window.showBounds;
+	}
 	if (mixer) {
 		if (buttonMap.left.state) {
 			timeMomentum += timeBuildup;
