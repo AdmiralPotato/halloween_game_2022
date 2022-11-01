@@ -102,7 +102,7 @@ camera.position.z = 5;
 
 const scene = new THREE.Scene();
 
-const ambientLight = new THREE.AmbientLight( 0xffffff, 0.4 );
+const ambientLight = new THREE.AmbientLight( 0xffffff, 1 );
 scene.add( ambientLight );
 
 const rimLightBrightness = 0.2;
@@ -115,14 +115,14 @@ rimLightL.position.set(-0.5, 0, -1);
 rimLightL.castShadow = true;
 scene.add(rimLightL);
 
-const fillLight = new THREE.DirectionalLight(0xffcccc, 1);
+const fillLight = new THREE.DirectionalLight(0xff0000, 0.5);
 scene.add( fillLight );
 scene.add( fillLight.target );
 fillLight.position.set(0, 1, 0.5);
 
 const near = 4;
 const far = 12;
-const color = 0x440044;
+const color = 0x330044;
 scene.fog = new THREE.Fog(color, near, far);
 scene.background = new THREE.Color(color);
 
