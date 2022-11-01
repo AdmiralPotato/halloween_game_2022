@@ -104,7 +104,7 @@ scene.background = new THREE.Color(color);
 
 const frameParent = new THREE.Object3D();
 const smoosherClipPlanes = [
-	new THREE.Plane( new THREE.Vector3( 0, - 1, 0 ), 0.8 ),
+	new THREE.Plane( new THREE.Vector3( 0, - 1, 0 ), 0.85 ),
 ];
 const smoosherParent = new THREE.Object3D();
 window.smoosherParent = smoosherParent;
@@ -180,7 +180,7 @@ const resize = () => {
 const speeds = {
 	cannon: 0.01,
 	crank: 2,
-	gear: -0.1,
+	gear: -0.01,
 };
 const timeDrag = 0.80;
 const timeBuildup = 0.22;
