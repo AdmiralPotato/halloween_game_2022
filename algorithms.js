@@ -333,6 +333,18 @@ const defaultConfig = {
 };
 
 const makeGameState = (userConfig) => {
+	const eventMap = {
+		match: [],
+		detach: [],
+		resolve: [],
+		win: [],
+		lose: [],
+	};
+	const fire = (eventName, value) => {
+		eventMap[eventName].forEach((listener) => {
+			listener(value);
+		});
+	};
 	const config = Object.assign({}, defaultConfig, userConfig);
 	config.tiles = config.tiles.slice(); // break shared reference
 	// cleaning Tiled arrays
@@ -396,6 +408,9 @@ const makeGameState = (userConfig) => {
 	// printGameBoard(state);
 	return {
 		state,
+		on (eventName, listener) {
+			eventMap[eventName].push(listener);
+		},
 		placeBubbleAtIndex (index) {
 			const bubble = state.queue[0];
 			const success = placeBubble(index, bubble, state);
@@ -411,10 +426,15 @@ const makeGameState = (userConfig) => {
 		getDanger () {
 			return state.dangerState / state.dangerRamp;
 		},
-		resolvePops () {
+		resolvePops (popStage) {
 			if (state.popped.length) {
-				state.score += getScore(state.popped[0].length);
-				const popped = state.popped.shift();
+				state.score += getScore(state.popped[popStage].length);
+				const popped = state.popped[popStage];
+				if (popStage === 0) {
+					fire('match', popped);
+				} else {
+					fire('detach', popped);
+				}
 				popped.forEach(function (index) {
 					state.tiles[index] = 0;
 				});
@@ -422,6 +442,10 @@ const makeGameState = (userConfig) => {
 			} else {
 				return false;
 			}
+		},
+		clearPops () {
+			state.popped = [];
+			fire('resolve', state);
 		},
 		printGameBoard () { // (A) tiles + (B) queue
 			printGameBoard(state);
@@ -438,8 +462,10 @@ const makeGameState = (userConfig) => {
 		},
 		isGameOver () {
 			if (isGameLost(state)) {
+				fire('lose', state);
 				return -1;
 			} else if (isGameWon(state)) {
+				fire('win', state);
 				return 1;
 			} else {
 				return 0;
@@ -453,8 +479,8 @@ const makeGameState = (userConfig) => {
 				printGameBoard(state); // (A) tiles + (B) queue
 			}
 			// 2. popping bubbles
-			while (state.popped.length) {
-				const popped = state.popped[0];
+			state.popped.forEach((stage, index) => {
+				const popped = state.popped[index];
 				const drawState = JSON.parse(JSON.stringify(state));
 				popped.forEach(function (index) {
 					drawState.tiles[index] = '!';
@@ -464,9 +490,10 @@ const makeGameState = (userConfig) => {
 				// "animation":
 				drawState.tiles = drawState.tiles
 					.map((value) => value === '!' ? 0 : value);
-				this.resolvePops(state);
+				this.resolvePops(index);
 				printGameBoard(state); // (A) tiles + (B) queue
-			}
+			});
+			this.clearPops();
 			//3. dropping ceiling
 			this.advanceDangerLevel();
 			if (state.lowered !== 0 && state.dangerState === 0) {

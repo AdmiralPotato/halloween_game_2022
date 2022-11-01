@@ -138,19 +138,24 @@ window.makeGameBoard = (game) => {
 			0,
 		);
 	};
-	state.tiles.forEach((value, index) => {
-		if (value) {
-			const candyIndex = value - 1;
-			const position  = getCoordinatesForIndex(index);
-			const bubble = window.makeBubble(candyIndex);
-			bubble.position.add(position);
-			bubbleParent.add(bubble);
-		}
-	});
-	// for (let i = 0; i < candies; i++) {
-	// 	const bubble = window.makeBubble(i);
-	// 	bubble.position.set(i, 0, 0);
-	// 	bubbleParent.add(bubble);
-	// }
+	const sparseBubbleMap = {};
+	const refreshBubbles = () => {
+		state.tiles.forEach((value, index) => {
+			if (value && !sparseBubbleMap[index]) {
+				const candyIndex = value - 1;
+				const position  = getCoordinatesForIndex(index);
+				const bubble = window.makeBubble(candyIndex);
+				sparseBubbleMap[index] = bubble;
+				bubble.position.add(position);
+				bubbleParent.add(bubble);
+			} else if (!value && sparseBubbleMap[index]) {
+				bubbleParent.remove(sparseBubbleMap[index]);
+				delete sparseBubbleMap[index];
+			}
+		});
+	};
+	refreshBubbles();
+	game.on('resolve', refreshBubbles);
+	gameBoard.refreshBubbles = refreshBubbles;
 	return gameBoard;
 };

@@ -285,6 +285,14 @@ const startGame = () => {
 	});
 	gameBoard = window.makeGameBoard(game);
 	console.log('Game started!');
+	game.on('win', (state) => {
+		alert(`YOU WIN!!! SCORE: ${state.score}`);
+		startGame();
+	});
+	game.on('lose', (state) => {
+		alert(`YOU LOSE!!! SCORE: ${state.score}`);
+		startGame();
+	});
 	scene.add(gameBoard);
 };
 buttonStart.addEventListener('click', startGame);
