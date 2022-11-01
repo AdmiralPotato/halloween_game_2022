@@ -295,8 +295,10 @@ const startGame = () => {
 	if (gameBoard) {
 		scene.remove(gameBoard);
 	}
+	const rows = 3 + Math.floor(Math.random() * 6);
 	game = window.makeGameState({
-		rowSize: 3 + Math.floor(Math.random() * 9),
+		rowSize: rows,
+		levelHeight: Math.floor(rows * 2),
 	});
 	gameBoard = window.makeGameBoard(game);
 	console.log('Game started!');
