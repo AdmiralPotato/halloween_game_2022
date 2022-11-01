@@ -6,13 +6,13 @@
          "target":"."
         }
     },
- "height":12,
+ "height":14,
  "hexsidelength":128,
  "infinite":false,
  "layers":[
         {
-         "data":[7, 7, 1, 1, 7, 7, 7, 7, 7, 1, 1, 7, 7, 0, 7, 4, 4, 4, 4, 4, 7, 4, 5, 4, 4, 5, 4, 0, 7, 4, 4, 5, 4, 4, 7, 6, 4, 4, 4, 4, 6, 0, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-         "height":12,
+         "data":[7, 7, 1, 1, 7, 7, 7, 7, 7, 1, 1, 7, 7, 0, 7, 4, 4, 4, 4, 4, 7, 4, 5, 4, 4, 5, 4, 0, 7, 4, 4, 5, 4, 4, 7, 6, 4, 4, 4, 4, 6, 0, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+         "height":14,
          "id":1,
          "name":"Tile Layer 1",
          "opacity":1,
@@ -30,26 +30,26 @@
          "name":"dangerRamp",
          "type":"int",
          "value":5
-        },
+        }, 
         {
          "name":"importFromTiled",
          "type":"bool",
          "value":true
-        },
+        }, 
         {
          "name":"levelHeight",
          "type":"int",
-         "value":12
-        },
-        {
-         "name":"rowsToAutoFill",
-         "type":"int",
-         "value":0
-        },
+         "value":14
+        }, 
         {
          "name":"rowSize",
          "type":"int",
          "value":7
+        }, 
+        {
+         "name":"rowsToAutoFill",
+         "type":"int",
+         "value":0
         }],
  "renderorder":"right-down",
  "staggeraxis":"y",
