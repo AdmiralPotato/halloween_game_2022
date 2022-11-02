@@ -107,8 +107,7 @@ window.makeGameBoard = (game) => {
 		window.cannonParent.position.y +
 		(height * gameBoardScale)
 	);
-	// const bubbleParent = new THREE.Object3D();
-	const bubbleParent = new THREE.AxesHelper(0.5);
+	const bubbleParent = new THREE.Object3D();
 	gameBoard.scale.set(gameBoardScale, gameBoardScale, gameBoardScale);
 	const firstBubbleOffset = new THREE.Vector3(
 		heX * 0.5,
@@ -195,9 +194,25 @@ window.makeGameBoard = (game) => {
 			}
 		});
 	};
+	let poppedBubbles = [];
+	const popBubbles = (toPop) => {
+		toPop.forEach((bubbleIndex) => {
+			const bubble = sparseBubbleMap[bubbleIndex];
+			bubble.bubbleIndex = bubbleIndex;
+			delete sparseBubbleMap[bubbleIndex];
+			bubble.velocity = new THREE.Vector3(
+				bubble.position.x * 0.015,
+				0.05,
+				0.05,
+			);
+			poppedBubbles.push(bubble);
+		});
+	};
 
 	refreshBubbles();
 	game.on('resolve', refreshBubbles);
+	game.on('match', popBubbles);
+	game.on('detach', popBubbles);
 	let isFiring = false;
 	let nextShotBubble;
 	let currentShotBubble;
@@ -254,7 +269,43 @@ window.makeGameBoard = (game) => {
 				.multiplyScalar(shootSpeed);
 		}
 	};
+
+	const gravity = 0.005;
+	const startShrink = 0.3;
+	const endShrink = 0.0;
+	const zeroScaleVector = new THREE.Vector3(0, 0, 0);
+	const bubbleScaleVector = new THREE.Vector3(
+		bubbleDiameter,
+		bubbleDiameter,
+		bubbleDiameter,
+	);
+	const keepBubbleInSceneTest = (b) => b.position.y > endShrink;
+	const tickPoppedBubbles = () => {
+		poppedBubbles.forEach((bubble) => {
+			bubble.position.add(bubble.velocity);
+			bubble.velocity.y -= gravity;
+			const mapped = THREE.MathUtils.mapLinear(
+				bubble.position.y,
+				startShrink,
+				endShrink,
+				0,
+				1,
+			);
+			const progress = THREE.MathUtils.clamp(mapped, 0, 1);
+			bubble.scale.lerpVectors(
+				bubbleScaleVector,
+				zeroScaleVector,
+				progress,
+			);
+			if (!keepBubbleInSceneTest(bubble)) {
+				bubbleParent.remove(bubble);
+			}
+		});
+		poppedBubbles = poppedBubbles.filter(keepBubbleInSceneTest);
+	};
+
 	gameBoard.tick = (deltaTime) => {
+		tickPoppedBubbles();
 		if (isFiring) {
 			let playCompleted = false;
 			const movement = currentShotBubble.velocity
@@ -271,13 +322,20 @@ window.makeGameBoard = (game) => {
 			closestCell.hex.material = hexMaterialActive;
 			const cellValue = game.state.tiles[closestCell.index];
 			const hitCeiling = currentShotBubble.position.y > height - bubbleRadius;
+			let targetBubbleCell;
 			if (cellValue) {
 				playCompleted = true;
-				const nearestEmptyCell = cells.find((cell) => !game.state.tiles[cell.index]);
-				game.play(nearestEmptyCell.index);
+				targetBubbleCell = cells.find((cell) => !game.state.tiles[cell.index]);
 			} else if (hitCeiling) {
 				playCompleted = true;
-				game.play(closestCell.index);
+				targetBubbleCell = closestCell;
+			}
+			if (targetBubbleCell) {
+				currentShotBubble.position
+					.set(0,0,0)
+					.add(targetBubbleCell.hex.position);
+				sparseBubbleMap[targetBubbleCell.index] = currentShotBubble;
+				game.play(targetBubbleCell.index);
 			}
 			if (
 				Math.abs(currentShotBubble.position.x) >
@@ -294,7 +352,6 @@ window.makeGameBoard = (game) => {
 				readyShot();
 			}
 			if (playCompleted) {
-				bubbleParent.remove(currentShotBubble);
 				readyShot();
 			}
 		}

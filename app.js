@@ -152,7 +152,7 @@ cannonParent.position.y = -0.55;
 const cannonArrow = new THREE.ArrowHelper(
 	new THREE.Vector3( 0, 1, 0 ).normalize(),
 	new THREE.Vector3( 0, 0, 0 ),
-	1,
+	0.1,
 	0xffff00,
 );
 cannonParent.add(cannonArrow);
