@@ -199,15 +199,35 @@ window.makeGameBoard = (game) => {
 	refreshBubbles();
 	game.on('resolve', refreshBubbles);
 	let isFiring = false;
+	let nextShotBubble;
 	let currentShotBubble;
 	const cannonWindowScale = 0.16;
+	const previewWindowScale = 0.10;
 	const readyShot = () => {
 		isFiring = false;
-		currentShotBubble = window.makeBubble(
-			game.state.queue[0] - 1,
-			cannonWindowScale,
+		if (!currentShotBubble) {
+			// we only need to _make_ one the first time,
+			// otherwise we always repurpose the nextShotBubble
+			currentShotBubble = window.makeBubble(
+				game.state.queue[0] - 1,
+				cannonWindowScale,
+			);
+		} else {
+			currentShotBubble = nextShotBubble;
+			currentShotBubble.scale.set(
+				cannonWindowScale,
+				cannonWindowScale,
+				cannonWindowScale,
+			);
+		}
+		nextShotBubble = window.makeBubble(
+			game.state.queue[1] - 1,
+			previewWindowScale,
 		);
-		currentShotBubble.position.z = 0.208;
+		// nextShotBubble.position.set(-0.12, -0.55, -0.139135);
+		nextShotBubble.position.set(-0.175, 0.0035, 0.25);
+		currentShotBubble.position.set(0, 0, 0.208);
+		bubbleParent.add(nextShotBubble);
 		bubbleParent.add(currentShotBubble);
 		resetHexagons();
 	};
