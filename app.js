@@ -158,14 +158,14 @@ const cannonArrow = new THREE.ArrowHelper(
 cannonParent.add(cannonArrow);
 const carouselConfig = {
 	a: {
-		phase: 0,
+		phase: Math.PI / 3,
 		amp: 0.13962634015954636,
-		speed: 0.00033,
+		speed: 0.02,
 	},
 	b: {
-		phase: 0,
+		phase: Math.PI / 6,
 		amp: 0.10471975511965978,
-		speed: 0.00054,
+		speed: 0.03,
 	},
 };
 
@@ -214,6 +214,7 @@ const clock = new THREE.Clock();
 let mixer;
 let lastTime = 0;
 function animation (time) {
+	const seconds = time / 1000;
 	const deltaTime = (time - lastTime) / 1000;
 	resize();
 	if (gameBoard) {
@@ -240,10 +241,8 @@ function animation (time) {
 		: 1;
 	const a = carouselConfig.a;
 	const b = carouselConfig.b;
-	a.phase += a.speed;
-	b.phase += b.speed;
-	carouselAParent.rotation.y = Math.sin(a.phase) * a.amp;
-	carouselBParent.rotation.y = Math.cos(b.phase) * b.amp;
+	carouselAParent.rotation.y = Math.sin(a.phase + (a.speed * seconds)) * a.amp;
+	carouselBParent.rotation.y = Math.cos(b.phase + (b.speed * seconds)) * b.amp;
 	if (
 		game?.state.score !== undefined &&
 		displayScore.innerText !== game.state.score + ''
