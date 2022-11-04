@@ -337,6 +337,7 @@ const makeGameState = (userConfig) => {
 		match: [],
 		detach: [],
 		resolve: [],
+		kachonk: [],
 		win: [],
 		lose: [],
 	};
@@ -498,7 +499,11 @@ const makeGameState = (userConfig) => {
 				this.clearPops();
 				//3. dropping ceiling
 				this.advanceDangerLevel();
-				if (state.lowered !== 0 && state.dangerState === 0) {
+				if (
+					state.lowered !== 0 &&
+					state.dangerState === 0
+				) {
+					fire('kachonk');
 					console.log('KCHONK!');
 					printGameBoard(state); // (A) tiles + (B) queue
 				}

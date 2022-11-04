@@ -94,11 +94,12 @@ window.makeGameBoard = (game) => {
 	boundsBaterial.transparent = true;
 	boundsBaterial.opacity = 0.25;
 	const gameBoard = new THREE.Object3D();
-	const boundsGeometry = new THREE.PlaneGeometry(1, height);
+	const boundsGeometry = new THREE.PlaneGeometry(1, 1);
 	const bounds = new THREE.Mesh(boundsGeometry, boundsBaterial);
+	bounds.scale.y = height;
 	bounds.position.y = (height / 2);
-	bounds.position.z = -0.5;
-	bounds.scale.multiplyScalar(1.075);
+	bounds.position.z = -0.1;
+	bounds.scale.multiplyScalar(1.01);
 	gameBoard.add(bounds);
 	gameBoard.bounds = bounds;
 	// puts bottom at cannon rotation pivot
@@ -208,11 +209,25 @@ window.makeGameBoard = (game) => {
 			poppedBubbles.push(bubble);
 		});
 	};
+	const cannonShootOrigin = new THREE.Vector3(0, 0, 0);
+	const handleKachonk = () => {
+		// I hate everything about this function and I don't even know what's
+		// happening, but it works now, and I am moving on. I should have
+		// found a way to parent them all to one object or something.
+		bubbleParent.position.y = -game.state.lowered * heY * bubbleDiameter;
+		cannonShootOrigin.y = -bubbleParent.position.y;
+		bounds.position.y = bubbleParent.position.y + (height / 2);
+		window.smoosherParent.position.y = (
+			window.cannonParent.position.y +
+			((height - cannonShootOrigin.y) * gameBoardScale)
+		);
+	};
 
 	refreshBubbles();
 	game.on('resolve', refreshBubbles);
 	game.on('match', popBubbles);
 	game.on('detach', popBubbles);
+	game.on('kachonk', handleKachonk);
 	let isFiring = false;
 	let nextShotBubble;
 	let currentShotBubble;
@@ -240,8 +255,12 @@ window.makeGameBoard = (game) => {
 			previewWindowScale,
 		);
 		// nextShotBubble.position.set(-0.12, -0.55, -0.139135);
-		nextShotBubble.position.set(-0.175, 0.0035, 0.25);
-		currentShotBubble.position.set(0, 0, 0.208);
+		nextShotBubble.position
+			.set(-0.175, 0.0035, 0.25)
+			.add(cannonShootOrigin);
+		currentShotBubble.position
+			.set(0, 0, 0.208)
+			.add(cannonShootOrigin);
 		bubbleParent.add(nextShotBubble);
 		bubbleParent.add(currentShotBubble);
 		resetHexagons();
