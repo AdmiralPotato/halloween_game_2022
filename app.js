@@ -244,7 +244,8 @@ function animation (time) {
 	carouselAParent.rotation.y = Math.sin(a.phase + (a.speed * seconds)) * a.amp;
 	carouselBParent.rotation.y = Math.cos(b.phase + (b.speed * seconds)) * b.amp;
 	if (
-		game?.state.score !== undefined &&
+		game &&
+		game.state.score !== undefined &&
 		displayScore.innerText !== game.state.score + ''
 	) {
 		displayScore.innerText = game.state.score + '';
